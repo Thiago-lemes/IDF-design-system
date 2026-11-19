@@ -1,0 +1,546 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Padrões IDF</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: cinco padrões adotados; o laboratório do shell + tela de venda é o centro, erros e segurança fecham. */
+:root{
+  --pg-bg:#f4f5f9;--pg-surface:#fff;--pg-text:#14162e;--pg-soft:#5b5f7a;--pg-line:#dfe2ec;--pg-line2:#c6cadb;--pg-chip:#eceef5;--pg-code:#eceef5;--pg-focus:#2b2d8f;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;--f-mono:ui-monospace,"Cascadia Code",Consolas,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --pg-bg:#0f1020;--pg-surface:#181a30;--pg-text:#eceef9;--pg-soft:#9ea2c0;--pg-line:#2a2d4a;--pg-line2:#3b3f63;--pg-chip:#20233e;--pg-code:#20233e;--pg-focus:#9a9cff;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --pg-bg:#0f1020;--pg-surface:#181a30;--pg-text:#eceef9;--pg-soft:#9ea2c0;--pg-line:#2a2d4a;--pg-line2:#3b3f63;--pg-chip:#20233e;--pg-code:#20233e;--pg-focus:#9a9cff;color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--pg-bg);color:var(--pg-text);font-family:var(--f-body);font-weight:500;line-height:1.55;font-size:16px;
+  padding-block:24px 80px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin-inline:auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{margin:0;line-height:1.12;letter-spacing:-.015em;text-wrap:balance}
+h1{font-size:clamp(2rem,5.2vw,3.1rem);font-weight:800}h2{font-size:1.5rem;font-weight:800}h3{font-size:1rem;font-weight:700}
+p{margin:0;max-width:66ch}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--pg-soft)}
+.soft{color:var(--pg-soft)}
+code{font-family:var(--f-mono);font-size:.82em;background:var(--pg-code);padding:.1em .4em;border-radius:6px}
+section{display:flex;flex-direction:column;gap:18px;min-width:0}
+.head{display:flex;flex-direction:column;gap:8px}
+.top{display:flex;flex-direction:column;gap:16px;padding-top:8px}
+.lead{font-size:1.1rem;color:var(--pg-soft)}
+.themebtn,.pbtn{font:inherit;font-weight:600;font-size:.85rem;border:1px solid var(--pg-line2);background:var(--pg-surface);color:var(--pg-text);border-radius:8px;padding:8px 14px;cursor:pointer}
+.themebtn{align-self:flex-start}
+a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--pg-focus);outline-offset:2px}
+.rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.rule{background:var(--pg-surface);border:1px solid var(--pg-line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.rule b{font-size:.95rem}.rule span{font-size:.82rem;color:var(--pg-soft)}.rule i{font-style:normal;font-weight:800;font-size:.7rem;letter-spacing:.1em;color:var(--pg-focus)}
+.pgcard{background:var(--pg-surface);border:1px solid var(--pg-line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.grid2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.tw{overflow-x:auto;border:1px solid var(--pg-line);border-radius:12px;background:var(--pg-surface)}
+table.pt{border-collapse:collapse;width:100%;font-size:.88rem;min-width:640px}
+.pt th,.pt td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--pg-line);vertical-align:top}
+.pt th{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--pg-soft)}.pt tr:last-child td{border-bottom:0}
+pre{margin:0;background:var(--pg-code);border-radius:12px;padding:14px;overflow-x:auto;font-family:var(--f-mono);font-size:.78rem;line-height:1.6}
+.cfgbar{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;background:var(--pg-surface);border:1px solid var(--pg-line);border-radius:14px;padding:12px 16px}
+.ctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.lb{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--pg-soft)}
+.seg{display:flex;flex-wrap:wrap;gap:3px;background:var(--pg-chip);padding:3px;border-radius:10px}
+.seg button{font:inherit;font-weight:600;font-size:.84rem;border:0;background:transparent;color:var(--pg-soft);padding:6px 12px;border-radius:8px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--pg-surface);color:var(--pg-text);box-shadow:0 1px 2px rgb(0 0 0/.15)}
+.cfgbar input[type=color]{width:44px;height:36px;border:1.5px solid var(--pg-line2);border-radius:8px;background:var(--pg-bg);padding:2px;cursor:pointer}
+.presets{display:flex;gap:6px}.presets button{width:26px;height:26px;border-radius:50%;border:2px solid var(--pg-surface);box-shadow:0 0 0 1px var(--pg-line2);cursor:pointer;padding:0}
+
+/* ===== tokens do sistema (escopo .tk) ===== */
+.tk{
+  --ok:#127a4b;--ok-soft:#e3f7ed;--warn:#8a5200;--warn-soft:#fff1d6;--danger:#c4321c;--danger-soft:#fdecea;--info:#1d5fc4;--info-soft:#e4eeff;
+  --radius:8px;--radius-lg:12px;--ctl:36px;--shadow:0 1px 2px rgb(20 22 46/.08);
+  background:var(--bg);color:var(--text);font-family:var(--f-body)}
+.tk[data-modo="claro"]{--bg:#f4f5f9;--surface:#fff;--surface2:#eceef5;--text:#14162e;--soft:#5b5f7a;--line:#dfe2ec}
+.tk[data-modo="escuro"]{--bg:#0f1020;--surface:#181a30;--surface2:#20233e;--text:#eceef9;--soft:#9ea2c0;--line:#2a2d4a;
+  --ok:#5ee3a1;--ok-soft:#15302a;--warn:#ffc266;--warn-soft:#3a2c10;--danger:#ff8f7a;--danger-soft:#3a1a17;--info:#8fb8ff;--info-soft:#14284d;--shadow:0 1px 2px rgb(0 0 0/.4)}
+.tk[data-sis="pdv"]{--radius:12px;--radius-lg:16px;--ctl:56px}
+.ico{width:1.2em;height:1.2em;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.num{font-variant-numeric:tabular-nums}
+.btn{font:inherit;font-size:.92rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid transparent;border-radius:var(--radius);padding:0 16px;min-height:var(--ctl);cursor:pointer;white-space:nowrap;transition:filter .12s,transform .12s}
+.btn:hover{filter:brightness(.93)}.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--brand);color:var(--brand-on)}.btn.secondary{background:var(--surface);color:var(--text);border-color:var(--line)}
+.btn.tonal{background:var(--brand-soft);color:var(--brand-text)}.btn.ghost{background:transparent;color:var(--brand-text)}.btn.danger{background:var(--danger);color:#fff}
+.btn.sm{min-height:calc(var(--ctl) - 6px);padding:0 12px;font-size:.84rem}.btn.block{width:100%}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.tk button:focus-visible,.tk input:focus-visible,.tk summary:focus-visible{outline:3px solid var(--brand-text);outline-offset:2px}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.badge.ok{background:var(--ok-soft);color:var(--ok)}.badge.warn{background:var(--warn-soft);color:var(--warn)}.badge.brand{background:var(--brand-soft);color:var(--brand-text)}.badge.danger{background:var(--danger-soft);color:var(--danger)}
+.inp{font:inherit;color:var(--text);background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);padding:0 12px;min-height:var(--ctl);width:100%}
+.inp:focus{border-color:var(--brand-text)}
+
+/* ===== moldura do app: shell + tela de venda ===== */
+.stage{overflow-x:auto;padding-bottom:4px}
+.fr{position:relative;height:680px;min-width:860px;overflow:hidden;border:1px solid var(--pg-line);border-radius:16px;display:flex;font-size:.92rem}
+.fr[data-vp="mob"]{min-width:0;width:372px;margin-inline:auto;flex-direction:column;height:700px;border-radius:34px;border:6px solid #1b1c2e}
+.sb{width:236px;flex:none;background:var(--hero);color:var(--on-hero);padding:22px 14px 16px;display:flex;flex-direction:column;gap:20px}
+.fr[data-col="1"] .sb{width:80px;align-items:center;padding:22px 10px 16px}
+.brand{display:flex;gap:10px;align-items:center;font-weight:800;font-size:1.05rem;padding:0 .5rem;white-space:nowrap}
+.brand .sq{width:34px;height:34px;border-radius:10px;background:#fff;color:var(--hero);display:grid;place-items:center;font-weight:800;flex:none}
+.fr[data-col="1"] .brand{padding:0}.fr[data-col="1"] .brand .nm{display:none}
+.fr[data-vp="mob"] .brand .nm{display:inline}
+.nav{display:flex;flex-direction:column;gap:3px}
+.nav button,.collapse{font:inherit;font-weight:600;display:flex;align-items:center;gap:.7rem;min-height:46px;padding:0 .95rem;border-radius:var(--radius);border:0;background:none;color:var(--on-hero-soft);cursor:pointer;text-align:left;width:100%}
+.nav button:hover,.collapse:hover{background:rgb(255 255 255/.12);color:var(--on-hero)}
+.nav button[aria-current="page"]{background:#fff;color:var(--hero);font-weight:700}
+.fr[data-col="1"] .nav button,.fr[data-col="1"] .collapse{width:48px;padding:0;justify-content:center}
+.fr[data-col="1"] .sb .tx{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.collapse{margin-top:auto}
+.sb button:focus-visible{outline:3px solid #fff}
+.pilltop{position:absolute;top:12px;right:20px;z-index:6;display:flex;align-items:center;gap:2px;padding:4px 6px;background:var(--surface);border:1px solid var(--line);border-radius:99px;box-shadow:var(--shadow)}
+.ib{position:relative;min-width:44px;min-height:44px;border:0;border-radius:50%;background:none;color:var(--text);display:grid;place-items:center;cursor:pointer}
+.ib:hover{background:var(--surface2)}
+.ib .dotc{position:absolute;top:5px;right:4px;min-width:18px;height:18px;border-radius:9px;background:var(--danger);color:#fff;font-size:.68rem;font-weight:800;display:grid;place-items:center;padding:0 4px;border:2px solid var(--surface)}
+.avt{width:40px;height:40px;border-radius:12px;background:var(--brand-soft);color:var(--brand-text);display:grid;place-items:center;font-weight:800;font-size:.95rem;border:0;cursor:pointer;margin:2px}
+.cnt{flex:1;min-width:0;overflow:auto;padding:68px 24px 24px;display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:20px;align-content:start}
+.mtop,.mnav,.cartbar{display:none}
+.fr[data-vp="mob"] .sb{display:none}
+.fr[data-vp="mob"] .mtop{display:flex;align-items:center;gap:10px;height:58px;background:var(--hero);color:var(--on-hero);padding:0 14px;flex:none}
+.fr[data-vp="mob"] .pilltop{top:7px;right:8px;background:transparent;border:0;box-shadow:none;color:var(--on-hero)}
+.fr[data-vp="mob"] .pilltop .ib{color:var(--on-hero)}.fr[data-vp="mob"] .pilltop .ib:hover{background:rgb(255 255 255/.14)}
+.fr[data-vp="mob"] .pilltop .ib .dotc{border-color:var(--hero)}
+.fr[data-vp="mob"] .cnt{grid-template-columns:minmax(0,1fr);padding:14px 14px 170px}
+.fr[data-vp="mob"] .mnav{display:grid;grid-template-columns:repeat(4,1fr);position:absolute;left:12px;right:12px;bottom:10px;z-index:5;gap:2px;padding:5px;background:var(--surface);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+.mnav button{font:inherit;background:transparent;border:0;color:var(--soft);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:.72rem;font-weight:700;min-height:56px;border-radius:var(--radius);cursor:pointer}
+.mnav button[aria-current="page"]{background:var(--brand);color:var(--brand-on)}
+.fr[data-vp="mob"] .cartbar{display:flex;position:absolute;left:12px;right:12px;bottom:84px;z-index:5}
+.fr[data-vp="mob"] .cartpanel{position:absolute;left:0;right:0;bottom:0;z-index:8;border-radius:20px 20px 0 0;max-height:78%;overflow:auto;transform:translateY(105%);transition:transform .25s cubic-bezier(.16,1,.3,1);box-shadow:0 -10px 40px rgb(0 0 0/.3)}
+.fr[data-vp="mob"][data-sheet="1"] .cartpanel{transform:none}
+.fr[data-vp="mob"] .cartbar{display:flex}.fr[data-vp="mob"][data-sheet="1"] .cartbar{display:none}
+.pop{position:absolute;top:64px;right:16px;z-index:20;width:min(330px,calc(100% - 24px));background:var(--surface);color:var(--text);border-radius:var(--radius-lg);box-shadow:0 12px 40px rgb(0 0 0/.3);padding:8px;display:flex;flex-direction:column;gap:2px;border:1px solid var(--line)}
+.fr[data-vp="mob"] .pop{top:60px;right:8px}
+.pop .ph{display:flex;gap:10px;align-items:center;padding:8px;border-bottom:1px solid var(--line);margin-bottom:4px}
+.pop .it{display:flex;gap:10px;align-items:center;width:100%;text-align:left;font:inherit;font-weight:600;color:var(--text);background:none;border:0;border-radius:var(--radius);min-height:44px;padding:0 10px;cursor:pointer}
+.pop .it:hover{background:var(--surface2)}
+.nt{display:flex;gap:10px;padding:10px 8px;border-radius:var(--radius);align-items:flex-start}
+.nt.new{background:var(--brand-soft)}.nt b{font-size:.88rem;line-height:1.25;display:block}.nt span{font-size:.78rem;color:var(--soft)}
+
+/* tela de venda */
+.sale{display:flex;flex-direction:column;gap:16px;min-width:0}
+.sale h4{margin:0;font-size:.74rem;letter-spacing:.09em;text-transform:uppercase;color:var(--soft);font-weight:800;display:flex;gap:8px;align-items:center}
+.search{display:flex;gap:8px;align-items:center}
+.search .field{position:relative;flex:1}
+.search .field .ico{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--soft)}
+.search .inp{padding-left:38px}
+.sec{display:flex;flex-direction:column;gap:8px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:10px}
+.tile{font:inherit;text-align:left;background:var(--surface);color:var(--text);border:1.5px solid var(--line);border-radius:var(--radius-lg);padding:12px;min-height:calc(var(--ctl) + 44px);display:flex;flex-direction:column;justify-content:space-between;gap:8px;cursor:pointer;position:relative;transition:transform .1s,border-color .12s}
+.tile:hover{border-color:var(--brand)}.tile:active{transform:scale(.97)}
+.tile b{font-size:.95rem;line-height:1.2}.tile .pr{font-weight:800;color:var(--brand-text);font-variant-numeric:tabular-nums}
+.tile .tg{position:absolute;top:8px;right:8px}
+.tile.hot{background:var(--brand-soft);border-color:transparent}
+.tile.combo{grid-column:span 2}
+.tile .inq{display:inline-block;min-width:22px;text-align:center}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font:inherit;font-weight:700;font-size:.85rem;border:1.5px solid var(--line);background:var(--surface);color:var(--text);border-radius:999px;min-height:calc(var(--ctl) - 4px);padding:0 14px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--brand);color:var(--brand-on);border-color:var(--brand)}
+.cartpanel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:14px;display:flex;flex-direction:column;gap:10px;align-self:start;position:sticky;top:0;min-width:0}
+.cartpanel .hd{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ln{display:flex;gap:8px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}.ln:first-of-type{border-top:0}
+.ln .g{flex:1;min-width:0;line-height:1.2}.ln .g b{display:block;font-size:.9rem}.ln .g span{font-size:.78rem;color:var(--soft)}
+.step{display:flex;align-items:center;gap:2px}.step button{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);color:var(--text);cursor:pointer;display:grid;place-items:center}
+.step .q{min-width:24px;text-align:center;font-weight:800}
+.tot{display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid var(--text);padding-top:10px;font-weight:800;font-size:1.5rem;font-variant-numeric:tabular-nums}
+.pays{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pays .btn{flex-direction:column;gap:2px;padding:0 4px}
+.cash{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.troco{display:flex;justify-content:space-between;background:var(--ok-soft);color:var(--ok);border-radius:var(--radius);padding:10px 12px;font-weight:800;font-variant-numeric:tabular-nums}
+.done{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:12px 4px}
+.done .ring{width:56px;height:56px;border-radius:50%;background:var(--ok-soft);color:var(--ok);display:grid;place-items:center}
+.empty{color:var(--soft);font-size:.88rem;padding:14px 4px;text-align:center}
+kbd{font-family:var(--f-mono);font-size:.72rem;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;background:var(--surface2);color:var(--soft)}
+
+/* erros */
+.err{display:flex;flex-direction:column;gap:10px;border:1px solid color-mix(in srgb,var(--danger) 40%,transparent);background:var(--danger-soft);border-radius:var(--radius-lg);padding:14px;color:var(--text)}
+.err .t{display:flex;gap:10px;align-items:flex-start;color:var(--danger)}.err .t b{font-size:1rem;line-height:1.25}
+.err .m{font-size:.9rem}
+.err .ids{display:flex;flex-wrap:wrap;gap:6px}
+.err .ids span{font-family:var(--f-mono);font-size:.74rem;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:2px 8px}
+.err ul{margin:0;padding-left:18px;font-size:.88rem}
+.err details{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+.err summary{cursor:pointer;font-weight:700;font-size:.86rem;padding:10px 12px;min-height:44px;display:flex;align-items:center}
+.err pre{background:var(--surface2);color:var(--text);border-radius:0 0 var(--radius) var(--radius);max-height:180px;margin:0;font-size:.74rem}
+.err .acts{display:flex;gap:8px;flex-wrap:wrap}
+.err .san{font-size:.76rem;color:var(--soft)}
+.errstage{border:1px solid var(--pg-line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:14px}
+.errfull{display:grid;place-items:center;text-align:center;gap:10px;padding:28px 14px}
+
+@media (max-width:760px){.grid2{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition:none!important}}
+</style>
+<style>[hidden]{display:none!important}img{max-width:100%}body{margin:0}</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1v-8Z"/></symbol>
+  <symbol id="i-cart" viewBox="0 0 24 24"><path d="M3 4h2.5l2 11h10l2-8H7M9 20h.01M17 20h.01"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M3.5 7.5 12 3l8.5 4.5v9L12 21l-8.5-4.5v-9ZM3.5 7.5 12 12l8.5-4.5M12 12v9"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M4 7a2 2 0 0 1 2-2h12v3M4 7v10a2 2 0 0 0 2 2h14V8H6a2 2 0 0 1-2-1ZM16 13.5h.01"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M5 20V10M12 20V4M19 20v-7"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 17V11a6 6 0 1 1 12 0v6l1.5 2h-15L6 17ZM10 21h4"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.4 1.4M17.6 17.6 19 19M19 5l-1.4 1.4M6.4 17.6 5 19"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16m4-8 3-3m-3 3 3 3"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16m4-8-3-3m3 3-3 3" transform="translate(5 0)"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-scan" viewBox="0 0 24 24"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3M8 8v8M12 8v8M16 8v8"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+  <symbol id="i-ok" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 3l3 3-3 3M4 11V9a3 3 0 0 1 3-3h13M7 21l-3-3 3-3M20 13v2a3 3 0 0 1-3 3H4"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 3c1 3 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 2 1.5 2C10 8 11 5 12 3Z"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 24 24"><path d="M12 3.5 2.8 19.5h18.4L12 3.5Z"/><path d="M12 10v4.5M12 17.2h.01"/></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path d="M9 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4M16 8l4 4-4 4M20 12H9"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c1-4 4-6 8-6s7 2 8 6"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></symbol>
+  <symbol id="i-err" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m9 9 6 6M15 9l-6 6"/></symbol>
+</svg>
+
+<div class="wrap">
+
+<header class="top">
+  <span class="eyebrow">Igreja IDF · padrões adotados</span>
+  <h1>Cinco regras que valem para todo sistema.</h1>
+  <p class="lead">Estas decisões entram no pacote e no gerador. O desenvolvedor não escolhe nada disso: recebe pronto e escreve só as telas do negócio.</p>
+  <div class="rules">
+    <div class="rule"><i>1</i><b>Menu lateral do Pastinho</b><span>Mesmo menu em todos os sistemas.</span></div>
+    <div class="rule"><i>2</i><b>Avatar e avisos no canto</b><span>Superior direito, sempre.</span></div>
+    <div class="rule"><i>3</i><b>Venda em poucos toques</b><span>PDV e Lojinha abrem na venda, com destaques.</span></div>
+    <div class="rule"><i>4</i><b>Front seguro</b><span>Regras no pacote, checadas no CI.</span></div>
+    <div class="rule"><i>5</i><b>Erro sempre explicado</b><span>Mensagem, código e detalhes técnicos.</span></div>
+  </div>
+  <button class="themebtn" id="pgTheme" type="button">Alternar tema da página</button>
+</header>
+
+<!-- 1-3 -->
+<section aria-labelledby="h1s">
+  <div class="head"><span class="eyebrow">Padrões 1, 2 e 3</span><h2 id="h1s">Shell e tela de venda, funcionando</h2>
+  <p>Copiei a estrutura do <code>Layout.tsx</code> e do <code>estilos.css</code> do Pastinho: menu de 236 px na cor da marca, abas em pílula, botão de recolher embaixo, pílula com tema, avisos e avatar no canto, e no celular a barra flutuante. Clique nos produtos, nos avisos e no avatar.</p></div>
+  <div class="cfgbar">
+    <div class="ctl"><span class="lb" id="lbSis">Sistema</span><div class="seg" id="segSis" role="group" aria-labelledby="lbSis"><button type="button" data-v="lojinha" aria-pressed="true">Lojinha</button><button type="button" data-v="pdv" aria-pressed="false">PDV</button></div></div>
+    <div class="ctl"><span class="lb" id="lbVp">Tela</span><div class="seg" id="segVp" role="group" aria-labelledby="lbVp"><button type="button" data-v="desk" aria-pressed="true">Computador</button><button type="button" data-v="mob" aria-pressed="false">Celular</button></div></div>
+    <div class="ctl"><span class="lb" id="lbModo">Tema</span><div class="seg" id="segModo" role="group" aria-labelledby="lbModo"><button type="button" data-v="claro" aria-pressed="true">Claro</button><button type="button" data-v="escuro" aria-pressed="false">Escuro</button></div></div>
+    <div class="ctl"><label class="lb" for="cCor">Cor</label><input type="color" id="cCor" value="#0b7a68"><div class="presets" id="presets"></div></div>
+  </div>
+
+  <div class="stage">
+  <div class="fr tk" id="fr" data-vp="desk" data-modo="claro" data-sis="lojinha" data-col="0">
+    <aside class="sb" aria-label="Menu lateral">
+      <div class="brand"><span class="sq" id="sqL">L</span><span class="nm" id="sqN">Lojinha IDF</span></div>
+      <nav class="nav" id="nav" aria-label="Principal"></nav>
+      <button class="collapse" id="collapse" type="button" aria-pressed="false" title="Recolher o menu"><svg class="ico"><use href="#i-left"/></svg><span class="tx" id="colTx">Recolher menu</span></button>
+    </aside>
+    <header class="mtop"><span class="sq brand" style="padding:0"><span class="sq" id="sqL2">L</span><span class="nm" id="sqN2" style="font-weight:800">Lojinha IDF</span></span></header>
+
+    <div class="pilltop" id="pilltop">
+      <button class="ib" id="btnTema" type="button" aria-label="Alternar tema"><svg class="ico"><use id="useTema" href="#i-moon"/></svg></button>
+      <button class="ib" id="btnBell" type="button" aria-label="Avisos" aria-haspopup="true" aria-expanded="false"><svg class="ico"><use href="#i-bell"/></svg><span class="dotc" id="bellN">3</span></button>
+      <button class="avt" id="btnAvt" type="button" aria-label="Menu da conta" aria-haspopup="true" aria-expanded="false">AL</button>
+    </div>
+    <div class="pop" id="popBell" hidden role="region" aria-label="Avisos">
+      <div class="ph"><b style="flex:1">Avisos</b><button class="btn ghost sm" id="markAll" type="button">Marcar como lidos</button></div>
+      <div id="nts"></div>
+    </div>
+    <div class="pop" id="popAvt" hidden role="menu" aria-label="Conta">
+      <div class="ph"><span class="avt" style="margin:0">AL</span><div style="line-height:1.25"><b>Ana Lima</b><br><span class="soft" style="font-size:.8rem;color:var(--soft)">Caixa · lojinha</span></div></div>
+      <button class="it" role="menuitem" type="button"><svg class="ico"><use href="#i-user"/></svg>Minha conta</button>
+      <button class="it" role="menuitem" type="button"><svg class="ico"><use href="#i-grid"/></svg>Meus sistemas<span class="badge brand" style="margin-left:auto">4</span></button>
+      <button class="it" role="menuitem" type="button" id="itTema"><svg class="ico"><use href="#i-moon"/></svg>Alternar tema</button>
+      <button class="it" role="menuitem" type="button"><svg class="ico"><use href="#i-out"/></svg>Sair</button>
+    </div>
+
+    <main class="cnt" id="cnt">
+      <div class="sale">
+        <div class="search">
+          <div class="field"><svg class="ico"><use href="#i-search"/></svg><input class="inp" id="q" placeholder="Buscar produto ou ler o código de barras" autocomplete="off" aria-label="Buscar produto"></div>
+          <button class="btn secondary" type="button" id="repeat"><svg class="ico"><use href="#i-repeat"/></svg><span>Repetir última</span></button>
+        </div>
+        <div id="secs" class="sale"></div>
+      </div>
+      <aside class="cartpanel" id="cart" aria-label="Venda atual"></aside>
+    </main>
+    <nav class="mnav" id="mnav" aria-label="Principal"></nav>
+    <div class="cartbar"><button class="btn primary block lg" id="openSheet" type="button" style="justify-content:space-between"><span id="cbN">Carrinho vazio</span><span class="num" id="cbT">R$ 0,00</span></button></div>
+  </div>
+  </div>
+  <p class="soft" style="font-size:.85rem">No código real a troca entre menu lateral, barra superior e barra inferior usa os mesmos pontos de corte do Pastinho (699 px e 1024 px). Aqui o botão “Tela” só simula isso. O PDV abre com o menu recolhido e controles de 56 px.</p>
+
+  <div class="grid2">
+    <div class="pgcard"><h3>Como a tela de venda reduz toques</h3>
+      <p class="soft" style="font-size:.9rem">Uma venda comum de café com pão de queijo leva 3 toques: o combo, Cobrar, Pix.</p>
+      <ul class="soft" style="margin:0;padding-left:18px;font-size:.9rem;display:flex;flex-direction:column;gap:4px">
+        <li><b style="color:var(--pg-text)">Abre já na venda</b>, sem tela de início no meio.</li>
+        <li><b style="color:var(--pg-text)">Mais vendidos hoje</b> no topo, calculados dos dados reais.</li>
+        <li><b style="color:var(--pg-text)">Combos</b> de um toque e <b style="color:var(--pg-text)">Repetir última</b>.</li>
+        <li><b style="color:var(--pg-text)">Busca e código de barras</b> sempre no foco; <kbd>F2</kbd> cobra, <kbd>Esc</kbd> volta.</li>
+        <li><b style="color:var(--pg-text)">Dinheiro</b> com notas rápidas e troco calculado.</li>
+      </ul></div>
+    <div class="pgcard"><h3>Seções de destaque</h3>
+      <p class="soft" style="font-size:.9rem">Cada loja decide o que entra, o pacote só entrega o espaço e a regra de ordem.</p>
+      <ul class="soft" style="margin:0;padding-left:18px;font-size:.9rem;display:flex;flex-direction:column;gap:4px">
+        <li><b style="color:var(--pg-text)">Mais vendidos hoje</b> (automático)</li>
+        <li><b style="color:var(--pg-text)">Combos e ofertas</b> (a liderança cadastra)</li>
+        <li><b style="color:var(--pg-text)">Categorias</b> como filtros de um toque</li>
+        <li><b style="color:var(--pg-text)">Acabando</b>: selo de estoque no produto, para não vender o que não tem</li>
+      </ul></div>
+  </div>
+</section>
+
+<!-- 5 -->
+<section aria-labelledby="h5">
+  <div class="head"><span class="eyebrow">Padrão 5</span><h2 id="h5">Erro sempre com mensagem, código e detalhes</h2>
+  <p>Todo erro passa pelo mesmo painel. A pessoa lê o que aconteceu em português, vê o código estável e o número da requisição, e abre os detalhes técnicos. Teste cada caso.</p></div>
+  <div class="pgcard" style="gap:10px">
+    <div class="ctl"><span class="lb" id="lbAud">Quem está vendo</span>
+      <div class="seg" id="segAud" role="group" aria-labelledby="lbAud"><button type="button" data-v="equipe" aria-pressed="true">Sistema interno (equipe)</button><button type="button" data-v="publico" aria-pressed="false">Sistema público (famílias)</button></div></div>
+    <p class="soft" style="font-size:.85rem">Em sistema interno, a stack aparece sempre (aberta). Em sistema público, ela fica fora da tela e vai para o Sentry com o mesmo número de requisição. Veja o porquê mais abaixo.</p>
+  </div>
+  <div class="errstage tk" id="errstage" data-modo="claro" data-sis="lojinha">
+    <div class="ctl" style="gap:8px">
+      <button class="btn secondary sm" type="button" data-err="rede">Sem conexão</button>
+      <button class="btn secondary sm" type="button" data-err="validacao">Campos inválidos (422)</button>
+      <button class="btn secondary sm" type="button" data-err="servidor">Erro no servidor (500)</button>
+      <button class="btn secondary sm" type="button" data-err="tela">Tela quebrou</button>
+    </div>
+    <div id="errout"></div>
+  </div>
+  <div class="grid2">
+    <div class="pgcard"><h3>O que o painel sempre mostra</h3>
+      <ul class="soft" style="margin:0;padding-left:18px;font-size:.9rem;display:flex;flex-direction:column;gap:4px">
+        <li>Título e explicação em português, dizendo o efeito (“Nada foi cobrado”)</li>
+        <li>Código estável (<code>ERRO_INTERNO</code>), status e número da requisição</li>
+        <li>Detalhes técnicos com stack e botão <b style="color:var(--pg-text)">Copiar detalhes</b></li>
+        <li>Ação clara: tentar de novo ou voltar</li>
+        <li>Também no ErrorBoundary, para a tela inteira que quebrar</li>
+      </ul></div>
+    <div class="pgcard"><h3>Por que a stack muda no sistema público</h3>
+      <p class="soft" style="font-size:.9rem">Stack mostra caminhos de arquivo, bibliotecas e versões, e ajuda quem procura uma falha para explorar. Para a equipe autenticada, isso vale o risco: ela precisa agir. Para uma mãe no Kids IDF, só atrapalha. Se você quiser stack em todos, é uma chave no pacote (<code>mostrarStack</code>).</p></div>
+  </div>
+  <pre><code>// regras da limpeza antes de exibir ou copiar (pacote @idf/ui)
+limparStack(texto) {
+  return texto
+    .replace(/(https?:\/\/[^\s)]+)\?[^\s)]*/g, "$1?[removido]")  // query string
+    .replace(/[\w.+-]+@[\w-]+\.[\w.]+/g, "[e-mail]")             // e-mails
+    .replace(/(Bearer|token=|sessao=)[^\s&]+/gi, "$1[removido]") // credenciais
+    .replace(/[A-Za-z]:\\[^\s)]+|\/(home|Users)\/[^\s)]+/g, "[caminho]")
+    .split("\n").slice(0, 12).join("\n");                        // no máximo 12 linhas
+}</code></pre>
+</section>
+
+<!-- 4 -->
+<section aria-labelledby="h4">
+  <div class="head"><span class="eyebrow">Padrão 4</span><h2 id="h4">Front seguro por padrão</h2>
+  <p>Como o front trata dinheiro e dados de pessoas, segurança vira regra do pacote, conferida no CI, e não decisão de cada dev. Parte disso o Pastinho já faz.</p></div>
+  <div class="tw"><table class="pt">
+    <thead><tr><th>Regra</th><th>Como fica</th><th>Origem</th></tr></thead>
+    <tbody>
+      <tr><td><b>Sessão sem token no navegador</b></td><td>Cookie <code>HttpOnly</code>, <code>Secure</code>, <code>SameSite</code>. Nada de token em <code>localStorage</code>.</td><td>Já no Pastinho</td></tr>
+      <tr><td><b>Proteção CSRF</b></td><td>Todo envio que altera dados manda o cabeçalho <code>X-Pastinho: 1</code> (no pacote, o nome é configurável).</td><td>Já no Pastinho</td></tr>
+      <tr><td><b>CSP rígida</b></td><td><code>script-src 'self'</code>, sem <code>unsafe-inline</code> nem <code>eval</code>; <code>frame-ancestors 'none'</code>; <code>X-Content-Type-Options</code>, <code>Referrer-Policy</code>, <code>Permissions-Policy</code>.</td><td>Cabeçalhos já no Pastinho; CSP do front entra</td></tr>
+      <tr><td><b>Nada de HTML cru</b></td><td>Proibido <code>dangerouslySetInnerHTML</code> e <code>eval</code> por regra de lint. Texto sempre escapado. Links externos com <code>rel="noopener noreferrer"</code>.</td><td>Regra de lint nova</td></tr>
+      <tr><td><b>Service worker cuidadoso</b></td><td>Cacheia só o shell (arquivos estáticos). Nunca guarda resposta de <code>/api</code> com dado pessoal ou financeiro. No logout, apaga caches e a fila local.</td><td>No gerador</td></tr>
+      <tr><td><b>Fila offline mínima</b></td><td>A venda sem conexão guarda só o necessário, com prazo de validade, e só o servidor confirma e calcula o total.</td><td>Decisão de arquitetura do PDV</td></tr>
+      <tr><td><b>Dinheiro: o servidor manda</b></td><td>O front mostra e valida para ajudar, mas preço, total e estoque são recalculados no servidor. Cada venda leva uma chave de idempotência, então “tentar de novo” nunca cobra duas vezes.</td><td>Padrão do pacote</td></tr>
+      <tr><td><b>Ação sensível pede senha de novo</b></td><td>Estorno, sangria e exclusão passam pela reautenticação e deixam registro de auditoria.</td><td>Já no Pastinho</td></tr>
+      <tr><td><b>Telemetria sem dado pessoal</b></td><td>Sentry e logs sem corpo, e-mail, telefone ou query. O número da requisição liga o erro da tela ao log.</td><td>Já no Pastinho</td></tr>
+      <tr><td><b>Dependências</b></td><td><code>npm audit</code> no CI, lockfile versionado, atualização regular.</td><td>Já no Pastinho</td></tr>
+    </tbody></table></div>
+</section>
+
+</div>
+
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  var root=document.documentElement;
+  $('pgTheme').addEventListener('click',function(){
+    var dark=root.getAttribute('data-theme')==='dark'||(!root.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme: dark)').matches);
+    root.setAttribute('data-theme',dark?'light':'dark');
+  });
+
+  /* ---- cor ---- */
+  function h2r(h){h=h.replace('#','');var n=parseInt(h,16);return[n>>16&255,n>>8&255,n&255]}
+  function r2h(a){return '#'+a.map(function(v){return Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')}).join('')}
+  function r2hsl(a){var r=a[0]/255,g=a[1]/255,b=a[2]/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,h=0,s=0,d=mx-mn;
+    if(d){s=l>.5?d/(2-mx-mn):d/(mx+mn);h=mx===r?(g-b)/d+(g<b?6:0):mx===g?(b-r)/d+2:(r-g)/d+4;h*=60}return[h,s*100,l*100]}
+  function hsl2r(h,s,l){s/=100;l/=100;var c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs((h/60)%2-1)),m=l-c/2,r=0,g=0,b=0;
+    if(h<60){r=c;g=x}else if(h<120){r=x;g=c}else if(h<180){g=c;b=x}else if(h<240){g=x;b=c}else if(h<300){r=x;b=c}else{r=c;b=x}return[(r+m)*255,(g+m)*255,(b+m)*255]}
+  function lum(a){var f=a.map(function(v){v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*f[0]+.7152*f[1]+.0722*f[2]}
+  function cr(a,b){var x=lum(h2r(a)),y=lum(h2r(b));return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)}
+  function shift(hex,bg,min,dir){var hsl=r2hsl(h2r(hex)),c=hex,i=0;while(cr(c,bg)<min&&i<60){hsl[2]+=dir;if(hsl[2]<0||hsl[2]>100)break;c=r2h(hsl2r(hsl[0],hsl[1],hsl[2]));i++}return c}
+  function tokens(hex,modo){
+    var hsl=r2hsl(h2r(hex)),dark=modo==='escuro',surf=dark?'#181a30':'#ffffff',fill=hex;
+    if(dark&&cr(fill,surf)<3)fill=shift(fill,surf,3,1);
+    var on=cr('#ffffff',fill)>=cr('#14162e',fill)?'#ffffff':'#14162e';
+    var soft=r2h(hsl2r(hsl[0],Math.min(hsl[1],dark?45:70),dark?20:94));
+    var hero=dark?r2h(hsl2r(hsl[0],Math.min(hsl[1],55),30)):shift(hex,'#ffffff',4.5,-1);
+    return{'--brand':fill,'--brand-on':on,'--brand-text':shift(hex,soft,4.5,dark?1:-1),'--brand-soft':soft,'--hero':hero,'--on-hero':'#ffffff','--on-hero-soft':'rgb(255 255 255 / .82)'};
+  }
+  var st={sis:'lojinha',vp:'desk',modo:'claro',hex:'#0b7a68',col:false,aud:'equipe'};
+  if(matchMedia('(prefers-color-scheme: dark)').matches)st.modo='escuro';
+  var fr=$('fr'),es=$('errstage');
+  function pressed(id,v){document.querySelectorAll('#'+id+' button').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.v===v))})}
+  function theme(){
+    var t=tokens(st.hex,st.modo);
+    [fr,es].forEach(function(e){Object.keys(t).forEach(function(k){e.style.setProperty(k,t[k])});e.setAttribute('data-modo',st.modo);e.setAttribute('data-sis',st.sis)});
+    pressed('segModo',st.modo);$('useTema').setAttribute('href',st.modo==='escuro'?'#i-sun':'#i-moon');
+  }
+  [['segSis','sis'],['segVp','vp'],['segModo','modo'],['segAud','aud']].forEach(function(p){
+    $(p[0]).addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;st[p[1]]=b.dataset.v;pressed(p[0],b.dataset.v);
+      if(p[1]==='sis'){st.col=b.dataset.v==='pdv';fr.setAttribute('data-col',st.col?'1':'0');renderNav();render()}
+      if(p[1]==='vp'){fr.setAttribute('data-vp',st.vp);fr.removeAttribute('data-sheet');closePops()}
+      if(p[1]==='aud'&&lastErr)showErr(lastErr);
+      theme()});
+  });
+  $('cCor').addEventListener('input',function(e){st.hex=e.target.value;theme()});
+  var pre=['#0b7a68','#2b2d8f','#7a1f3d','#c2570c','#1d5fc4','#5a3fb8'];
+  $('presets').innerHTML=pre.map(function(c){return '<button type="button" style="background:'+c+'" data-c="'+c+'" aria-label="Cor '+c+'"></button>'}).join('');
+  $('presets').addEventListener('click',function(e){var b=e.target.closest('button');if(b){st.hex=b.dataset.c;$('cCor').value=b.dataset.c;theme()}});
+  $('btnTema').addEventListener('click',toggleTema);$('itTema').addEventListener('click',function(){toggleTema();closePops()});
+  function toggleTema(){st.modo=st.modo==='claro'?'escuro':'claro';theme()}
+
+  /* ---- menu ---- */
+  var NAV={lojinha:[['Vender','i-cart'],['Estoque','i-box'],['Caixa','i-wallet'],['Relatórios','i-chart'],['Config','i-gear']],pdv:[['Vender','i-cart'],['Caixa','i-wallet'],['Avisos','i-bell'],['Config','i-gear']]};
+  function renderNav(){
+    var items=NAV[st.sis];
+    $('nav').innerHTML=items.map(function(x,i){return '<button type="button" title="'+x[0]+'"'+(i===0?' aria-current="page"':'')+'><svg class="ico"><use href="#'+x[1]+'"/></svg><span class="tx">'+x[0]+'</span></button>'}).join('');
+    $('mnav').style.gridTemplateColumns='repeat('+Math.min(items.length,4)+',1fr)';
+    $('mnav').innerHTML=items.slice(0,4).map(function(x,i){return '<button type="button"'+(i===0?' aria-current="page"':'')+'><svg class="ico" style="width:22px;height:22px"><use href="#'+x[1]+'"/></svg>'+x[0]+'</button>'}).join('');
+    var nm=st.sis==='pdv'?'PDV IDF':'Lojinha IDF',L=nm[0];
+    ['sqN','sqN2'].forEach(function(i){$(i).textContent=nm});['sqL','sqL2'].forEach(function(i){$(i).textContent=L});
+    $('colTx').textContent=st.col?'Expandir menu':'Recolher menu';
+    $('collapse').setAttribute('aria-pressed',String(st.col));
+    $('collapse').querySelector('use').setAttribute('href',st.col?'#i-right':'#i-left');
+  }
+  $('collapse').addEventListener('click',function(){st.col=!st.col;fr.setAttribute('data-col',st.col?'1':'0');renderNav()});
+  $('nav').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;this.querySelectorAll('button').forEach(function(x){x.removeAttribute('aria-current')});b.setAttribute('aria-current','page')});
+  $('mnav').addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;this.querySelectorAll('button').forEach(function(x){x.removeAttribute('aria-current')});b.setAttribute('aria-current','page')});
+
+  /* ---- avisos e conta ---- */
+  var NT=[{t:'7 produtos abaixo do mínimo',s:'Estoque · há 12 min',n:true},{t:'Fechamento de ontem pendente',s:'Caixa · ontem 21:40',n:true},{t:'Nova versão do app disponível',s:'Sistema · hoje',n:true}];
+  function renderNt(){
+    $('nts').innerHTML=NT.map(function(n){return '<div class="nt'+(n.n?' new':'')+'"><svg class="ico" style="margin-top:2px"><use href="#i-'+(n.n?'warn':'ok')+'"/></svg><div><b>'+n.t+'</b><span>'+n.s+'</span></div></div>'}).join('');
+    var c=NT.filter(function(n){return n.n}).length;$('bellN').textContent=c;$('bellN').hidden=!c;
+  }
+  $('markAll').addEventListener('click',function(){NT.forEach(function(n){n.n=false});renderNt()});
+  function closePops(){['popBell','popAvt'].forEach(function(i){$(i).hidden=true});$('btnBell').setAttribute('aria-expanded','false');$('btnAvt').setAttribute('aria-expanded','false')}
+  function toggle(pop,btn){var open=$(pop).hidden;closePops();if(open){$(pop).hidden=false;$(btn).setAttribute('aria-expanded','true')}}
+  $('btnBell').addEventListener('click',function(e){e.stopPropagation();toggle('popBell','btnBell')});
+  $('btnAvt').addEventListener('click',function(e){e.stopPropagation();toggle('popAvt','btnAvt')});
+  fr.addEventListener('click',function(e){if(!e.target.closest('.pop'))closePops()});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closePops()});
+
+  /* ---- venda ---- */
+  var P={cafe:{n:'Café coado',p:600,c:'Cantina',h:42},pao:{n:'Pão de queijo',p:500,c:'Cantina',h:37},agua:{n:'Água',p:350,c:'Cantina',h:29},suco:{n:'Suco',p:700,c:'Cantina',h:21},
+    cam:{n:'Camiseta IDF',p:5990,c:'Vestuário',s:24},bib:{n:'Bíblia infantil',p:3900,c:'Livros',s:3},can:{n:'Caneca',p:2900,c:'Presentes',s:2},liv:{n:'Devocional',p:2500,c:'Livros',s:12}};
+  var COMBOS=[{n:'Café + pão de queijo',p:900,i:['cafe','pao']},{n:'Lanche kids',p:1050,i:['suco','pao']}];
+  var cart={},step='cart',pay=null,cat='Todos',busca='',last=null,idv=4822;
+  function fmt(c){return 'R$ '+(c/100).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}
+  function tot(){var t=0;Object.keys(cart).forEach(function(k){t+=cart[k].p*cart[k].q});return t}
+  function qtd(){var n=0;Object.keys(cart).forEach(function(k){n+=cart[k].q});return n}
+  function addP(id,q){var p=P[id];if(!cart[id])cart[id]={n:p.n,p:p.p,q:0};cart[id].q+=q;if(cart[id].q<=0)delete cart[id]}
+  function addCombo(i){var c=COMBOS[i],sum=0;c.i.forEach(function(k){sum+=P[k].p});var disc=sum-c.p,key='combo'+i;
+    if(!cart[key])cart[key]={n:c.n,p:c.p,q:0,sub:c.i.map(function(k){return P[k].n}).join(' + ')};cart[key].q++}
+  function tile(id){var p=P[id],low=p.s!==undefined&&p.s<=3;
+    return '<button class="tile'+(p.h?' hot':'')+'" type="button" data-p="'+id+'">'+(low?'<span class="badge warn tg">Restam '+p.s+'</span>':p.h?'<span class="badge brand tg">'+p.h+' hoje</span>':'')+'<b style="padding-right:'+(low||p.h?'52px':'0')+'">'+p.n+'</b><span class="pr">'+fmt(p.p)+'</span></button>'}
+  function render(){
+    var hot=Object.keys(P).filter(function(k){return P[k].h}).sort(function(a,b){return P[b].h-P[a].h}).slice(0,4);
+    var cats=['Todos','Cantina','Livros','Vestuário','Presentes'];
+    var list=Object.keys(P).filter(function(k){var p=P[k];return (cat==='Todos'||p.c===cat)&&(!busca||p.n.toLowerCase().indexOf(busca)>-1)});
+    var h='';
+    if(!busca){
+      h+='<div class="sec"><h4><svg class="ico"><use href="#i-flame"/></svg>Mais vendidos hoje</h4><div class="tiles">'+hot.map(tile).join('')+'</div></div>';
+      h+='<div class="sec"><h4>Combos</h4><div class="tiles">'+COMBOS.map(function(c,i){return '<button class="tile combo" type="button" data-combo="'+i+'"><span class="badge ok tg">Economiza '+fmt(c.i.reduce(function(s,k){return s+P[k].p},0)-c.p)+'</span><b style="padding-right:110px">'+c.n+'</b><span class="pr">'+fmt(c.p)+'</span></button>'}).join('')+'</div></div>';
+    }
+    h+='<div class="sec"><h4>'+(busca?'Resultado da busca':'Todos os produtos')+'</h4>'+(busca?'':'<div class="chips" role="group" aria-label="Categoria">'+cats.map(function(c){return '<button class="chip" type="button" data-cat="'+c+'" aria-pressed="'+(c===cat)+'">'+c+'</button>'}).join('')+'</div>')+
+      '<div class="tiles">'+(list.length?list.map(tile).join(''):'<div class="empty" style="grid-column:1/-1">Nenhum produto encontrado.</div>')+'</div></div>';
+    $('secs').innerHTML=h;
+    renderCart();
+  }
+  function renderCart(){
+    var keys=Object.keys(cart),t=tot(),n=qtd(),h='';
+    $('cbN').textContent=n?n+(n>1?' itens':' item'):'Carrinho vazio';$('cbT').textContent=fmt(t);
+    if(step==='done'){
+      h='<div class="done"><div class="ring"><svg class="ico" style="width:28px;height:28px"><use href="#i-ok"/></svg></div><b style="font-size:1.1rem">Venda #'+(idv-1)+' registrada</b><span class="soft" style="color:var(--soft)">'+fmt(last.t)+' · '+last.m+(last.troco?' · troco '+fmt(last.troco):'')+'</span><button class="btn primary block" id="novaV" type="button" style="margin-top:6px">Nova venda</button></div>';
+    }else{
+      h='<div class="hd"><b>Venda #'+idv+'</b>'+(keys.length?'<button class="btn ghost sm" id="limpar" type="button">Limpar</button>':'')+'</div>';
+      if(!keys.length){h+='<div class="empty">Toque num produto, leia o código de barras ou use “Repetir última”.</div>'}
+      else{h+=keys.map(function(k){var l=cart[k];return '<div class="ln"><div class="g"><b>'+l.n+'</b><span>'+(l.sub?l.sub+' · ':'')+fmt(l.p)+'</span></div><div class="step"><button type="button" data-d="-1" data-k="'+k+'" aria-label="Diminuir '+l.n+'"><svg class="ico"><use href="#i-minus"/></svg></button><span class="q num">'+l.q+'</span><button type="button" data-d="1" data-k="'+k+'" aria-label="Aumentar '+l.n+'"><svg class="ico"><use href="#i-plus"/></svg></button></div></div>'}).join('');}
+      h+='<div class="tot"><span>Total</span><span>'+fmt(t)+'</span></div>';
+      if(step==='cart')h+='<button class="btn primary block lg" id="cobrar" type="button"'+(keys.length?'':' disabled')+'>Cobrar <kbd>F2</kbd></button>';
+      if(step==='pay')h+='<div class="pays"><button class="btn secondary lg" data-m="Pix" type="button">Pix</button><button class="btn secondary lg" data-m="Cartão" type="button">Cartão</button><button class="btn secondary lg" data-m="Dinheiro" type="button">Dinheiro</button></div><button class="btn ghost block" id="voltar" type="button">Voltar <kbd>Esc</kbd></button>';
+      if(step==='cash'){var v=[t,1000,2000,5000,10000].filter(function(x,i){return i===0||x>=t}).filter(function(x,i,a){return a.indexOf(x)===i}).slice(0,5);
+        h+='<div class="lbl" style="font-size:.74rem;font-weight:800;color:var(--soft);text-transform:uppercase;letter-spacing:.09em">Valor recebido</div><div class="cash">'+v.map(function(x){return '<button class="btn secondary" type="button" data-r="'+x+'">'+(x===t?'Exato':fmt(x))+'</button>'}).join('')+'</div><button class="btn ghost block" id="voltar" type="button">Voltar <kbd>Esc</kbd></button>'}
+      if(step==='troco'){h+='<div class="troco"><span>Troco</span><span>'+fmt(pay.r-t)+'</span></div><button class="btn primary block lg" id="conf" type="button">Confirmar venda</button><button class="btn ghost block" id="voltar" type="button">Voltar</button>'}
+    }
+    $('cart').innerHTML=h;
+  }
+  function finish(m,troco){last={t:tot(),m:m,troco:troco||0};idv++;cart={};step='done';pay=null;render()}
+  function closeSheet(){fr.removeAttribute('data-sheet')}
+  $('secs').addEventListener('click',function(e){
+    var t=e.target.closest('[data-p]'),c=e.target.closest('[data-combo]'),k=e.target.closest('[data-cat]');
+    if(t){if(step==='done')step='cart';addP(t.dataset.p,1);if(step!=='cart')step='cart';renderCart()}
+    if(c){if(step==='done')step='cart';addCombo(+c.dataset.combo);step='cart';renderCart()}
+    if(k){cat=k.dataset.cat;render()}
+  });
+  $('q').addEventListener('input',function(e){busca=e.target.value.trim().toLowerCase();render()});
+  $('q').addEventListener('keydown',function(e){if(e.key==='Enter'){var ks=Object.keys(P).filter(function(k){return P[k].n.toLowerCase().indexOf(busca)>-1});if(busca&&ks.length===1){addP(ks[0],1);step='cart';e.target.value='';busca='';render()}}});
+  $('repeat').addEventListener('click',function(){step='cart';cart={};addP('cafe',1);addP('pao',1);renderCart()});
+  $('openSheet').addEventListener('click',function(){fr.setAttribute('data-sheet','1')});
+  $('cart').addEventListener('click',function(e){
+    var b=e.target.closest('button');if(!b)return;
+    if(b.dataset.k){var k=b.dataset.k;cart[k].q+=+b.dataset.d;if(cart[k].q<=0)delete cart[k];renderCart();return}
+    if(b.id==='limpar'){cart={};renderCart()}
+    if(b.id==='cobrar'&&tot()>0){step='pay';renderCart()}
+    if(b.id==='voltar'){step=step==='troco'?'cash':step==='cash'?'pay':'cart';renderCart()}
+    if(b.dataset.m){if(b.dataset.m==='Dinheiro'){step='cash';renderCart()}else finish(b.dataset.m)}
+    if(b.dataset.r){var r=+b.dataset.r;if(r===tot())finish('Dinheiro');else{pay={r:r};step='troco';renderCart()}}
+    if(b.id==='conf')finish('Dinheiro',pay.r-tot());
+    if(b.id==='novaV'){step='cart';closeSheet();renderCart();$('q').focus()}
+  });
+  fr.addEventListener('keydown',function(e){
+    if(e.key==='F2'){e.preventDefault();if(step==='cart'&&tot()>0){step='pay';renderCart();fr.setAttribute('data-sheet','1')}}
+    if(e.key==='Escape'&&(step==='pay'||step==='cash'||step==='troco')){step=step==='troco'?'cash':step==='cash'?'pay':'cart';renderCart()}
+  });
+
+  /* ---- erros ---- */
+  var JSST='TypeError: Cannot read properties of undefined (reading \'preco\')\n    at somarItens (src/telas/venda/carrinho.ts:42:18)\n    at Carrinho (src/telas/venda/Carrinho.tsx:17:9)\n    at renderWithHooks (node_modules/react-dom/cjs/react-dom.js:14985:18)';
+  var ERR={
+    rede:{t:'Sem conexão com o servidor',m:'Não foi possível enviar a venda. Nada foi cobrado. Ela fica na fila como “Pendente de envio” e sobe quando a conexão voltar.',cod:'REDE_INDISPONIVEL',http:null,req:null,stack:'TypeError: Failed to fetch\n    at enviarVenda (src/api/cliente.ts:58:11)\n    at finalizar (src/telas/venda/Carrinho.tsx:96:7)',retry:'Tentar de novo'},
+    validacao:{t:'Confira os campos',m:'2 campos precisam de ajuste antes de salvar.',cod:'VALIDACAO',http:422,req:'c7f1a9e2',campos:[['Preço','Use duas casas decimais, como 59,90.'],['Estoque mínimo','Informe um número inteiro.']],stack:null,retry:'Corrigir'},
+    servidor:{t:'Algo deu errado no servidor',m:'A venda não foi concluída e nada foi cobrado. Se continuar, envie os detalhes abaixo à equipe técnica.',cod:'ERRO_INTERNO',http:500,req:'e41b09d7',stack:'Traceback (most recent call last):\n  app/vendas/service.py:128 in finalizar_venda\n    total = somar(itens)\n  app/vendas/calculo.py:37 in somar\n    preco = item.produto.preco\nAttributeError: \'NoneType\' object has no attribute \'preco\'',retry:'Tentar de novo'},
+    tela:{t:'Esta tela não pôde ser exibida',m:'Ocorreu um erro inesperado ao montar a tela. As vendas já registradas estão salvas.',cod:'ERRO_TELA',http:null,req:'b82d11c0',stack:JSST,retry:'Recarregar a tela',full:true}
+  };
+  var lastErr=null;
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function showErr(k){
+    lastErr=k;var e=ERR[k],eq=st.aud==='equipe';
+    var ids='<span>'+e.cod+'</span>'+(e.http?'<span>HTTP '+e.http+'</span>':'')+(e.req?'<span>requisição '+e.req+'</span>':'');
+    var det='';
+    if(e.stack&&eq)det='<details open><summary>Detalhes técnicos</summary><pre><code>'+esc(e.stack)+'</code></pre></details><div class="san">Dados pessoais, tokens e caminhos do computador foram removidos.</div>';
+    else if(e.stack&&!eq)det='<div class="san">Se precisar de ajuda, informe o código e o número da requisição. A equipe técnica já recebeu o erro.</div>';
+    else det='<div class="san">Erro de validação previsto, sem stack.</div>';
+    var campos=e.campos?'<ul>'+e.campos.map(function(c){return '<li><b>'+esc(c[0])+':</b> '+esc(c[1])+'</li>'}).join('')+'</ul>':'';
+    var html='<div class="err" role="alert"><div class="t"><svg class="ico" style="width:22px;height:22px;margin-top:1px"><use href="#i-err"/></svg><b>'+esc(e.t)+'</b></div><div class="m">'+esc(e.m)+'</div>'+campos+'<div class="ids">'+ids+'</div>'+det+
+      '<div class="acts"><button class="btn danger sm" type="button">'+esc(e.retry)+'</button><button class="btn secondary sm" type="button" data-copy="1"><svg class="ico"><use href="#i-copy"/></svg>Copiar detalhes</button></div><span class="san" id="cpm" role="status"></span></div>';
+    $('errout').innerHTML=e.full?'<div class="errfull">'+html+'</div>':html;
+  }
+  document.querySelectorAll('[data-err]').forEach(function(b){b.addEventListener('click',function(){showErr(b.dataset.err)})});
+  $('errout').addEventListener('click',function(e){var b=e.target.closest('[data-copy]');if(!b)return;var x=ERR[lastErr];
+    var txt=['Sistema: Lojinha IDF 1.4.2','Quando: '+new Date().toISOString(),'Código: '+x.cod,x.http?'HTTP: '+x.http:'','Requisição: '+(x.req||'-'),'Mensagem: '+x.m,x.stack&&st.aud==='equipe'?'\n'+x.stack:''].filter(Boolean).join('\n');
+    var m=$('cpm');function ok(){m.textContent='Detalhes copiados.'}
+    try{navigator.clipboard.writeText(txt).then(ok,function(){m.textContent='Não foi possível copiar. Selecione o texto.'})}catch(er){m.textContent='Não foi possível copiar. Selecione o texto.'}});
+
+  /* início */
+  document.querySelectorAll('.tk').forEach(function(){});
+  renderNav();renderNt();render();theme();showErr('servidor');
+})();
+</script>
+</body>
+</html>

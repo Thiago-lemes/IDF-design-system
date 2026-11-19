@@ -1,0 +1,9 @@
+{
+  "name": "create-idf-app",
+  "version": "0.1.0",
+  "description": "Gera o tema e o manifest de um sistema IDF novo a partir do nome e da cor.",
+  "type": "module",
+  "bin": { "create-idf-app": "bin/idf-app.mjs" },
+  "files": ["bin"],
+  "license": "UNLICENSED"
+}

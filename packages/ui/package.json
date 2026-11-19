@@ -1,0 +1,15 @@
+{
+  "name": "@idf/ui",
+  "version": "0.1.0",
+  "description": "Design system da Igreja IDF: tokens, componentes e padrões compartilhados entre os sistemas.",
+  "type": "module",
+  "exports": {
+    "./tokens.css": "./src/tokens/tokens.css",
+    "./cor": "./src/tokens/cor.mjs"
+  },
+  "files": ["src"],
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "license": "UNLICENSED"
+}

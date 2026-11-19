@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Design System IDF</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@700;800&family=Figtree:wght@400;500;600;700;800&display=swap">
+<style>
+/* Layout: referência em coluna única; o laboratório com 4 produtos em 2 registros é o centro da página. */
+:root{
+  --pg-bg:#f4f5f9; --pg-surface:#fff; --pg-text:#14162e; --pg-soft:#5b5f7a; --pg-line:#dfe2ec; --pg-line2:#c6cadb;
+  --pg-brand:#2b2d8f; --pg-brand-on:#fff; --pg-chip:#eceef5; --pg-code:#eceef5;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-expr:"Bricolage Grotesque","Figtree",system-ui,sans-serif;
+  --f-mono:ui-monospace,"Cascadia Code",Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --pg-bg:#0f1020; --pg-surface:#181a30; --pg-text:#eceef9; --pg-soft:#9ea2c0; --pg-line:#2a2d4a; --pg-line2:#3b3f63;
+  --pg-brand:#9a9cff; --pg-brand-on:#10112a; --pg-chip:#20233e; --pg-code:#20233e; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --pg-bg:#0f1020; --pg-surface:#181a30; --pg-text:#eceef9; --pg-soft:#9ea2c0; --pg-line:#2a2d4a; --pg-line2:#3b3f63;
+  --pg-brand:#9a9cff; --pg-brand-on:#10112a; --pg-chip:#20233e; --pg-code:#20233e; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--pg-bg);color:var(--pg-text);font-family:var(--f-body);font-weight:500;line-height:1.55;font-size:16px;
+  padding-block:24px 72px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));-webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin-inline:auto;display:flex;flex-direction:column;gap:64px}
+h1,h2,h3{font-family:var(--f-body);text-wrap:balance;margin:0;line-height:1.12;letter-spacing:-.015em}
+h1{font-size:clamp(2.1rem,5.5vw,3.3rem);font-weight:800}
+h2{font-size:1.65rem;font-weight:800}
+h3{font-size:1.02rem;font-weight:700}
+p{margin:0;max-width:66ch}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--pg-soft)}
+.soft{color:var(--pg-soft)}
+code{font-family:var(--f-mono);font-size:.82em;background:var(--pg-code);padding:.1em .4em;border-radius:6px}
+section{display:flex;flex-direction:column;gap:20px;min-width:0}
+.head{display:flex;flex-direction:column;gap:8px}
+.top{display:flex;flex-direction:column;gap:18px;padding-top:8px}
+.top .lead{font-size:1.12rem;color:var(--pg-soft)}
+.themebtn{align-self:flex-start;font:inherit;font-weight:600;font-size:.85rem;border:1px solid var(--pg-line2);background:var(--pg-surface);color:var(--pg-text);border-radius:8px;padding:8px 14px;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--pg-brand);outline-offset:2px}
+
+/* registros */
+.regs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.reg{background:var(--pg-surface);border:1px solid var(--pg-line);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.reg .tag{align-self:flex-start;font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border-radius:6px;background:var(--pg-chip);color:var(--pg-soft)}
+.reg ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px;color:var(--pg-soft);font-size:.92rem}
+.reg b{color:var(--pg-text)}
+.reg.ops{border-color:var(--pg-brand);border-width:2px}
+.layers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.layer{background:var(--pg-surface);border:1px solid var(--pg-line);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.layer .n{font-weight:800;font-size:.7rem;letter-spacing:.1em;color:var(--pg-brand)}
+.layer p{font-size:.86rem;color:var(--pg-soft)}
+
+/* laboratório */
+.lab{background:var(--pg-surface);border:1px solid var(--pg-line);border-radius:16px;overflow:hidden}
+.controls{display:flex;flex-wrap:wrap;gap:12px 28px;padding:12px 16px;border-bottom:1px solid var(--pg-line);align-items:center}
+.ctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.lab-label{font-size:.7rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--pg-soft)}
+.seg{display:flex;flex-wrap:wrap;gap:3px;background:var(--pg-chip);padding:3px;border-radius:10px}
+.seg button{font:inherit;font-weight:600;font-size:.85rem;border:0;background:transparent;color:var(--pg-soft);padding:7px 13px;border-radius:8px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--pg-surface);color:var(--pg-text);box-shadow:0 1px 2px rgb(0 0 0/.15)}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;padding:10px 16px;border-bottom:1px solid var(--pg-line);font-size:.8rem;color:var(--pg-soft)}
+.meta b{color:var(--pg-text);font-weight:700}
+
+/* ===== tokens (camadas 1-2: base operacional) ===== */
+.demo{
+  --font-display:var(--f-body);--dw:700;
+  --radius:8px;--radius-lg:12px;--ctl:36px;--pad:14px;--gap:12px;--fs:.88rem;
+  --shadow:0 1px 2px rgb(20 22 46/.06);
+  background:var(--bg);color:var(--text);font-family:var(--f-body);font-size:var(--fs);padding:20px;
+  --ok:#127a4b;--ok-soft:#e3f7ed;--warn:#9a5b00;--warn-soft:#fff1d6;--danger:#c4321c;--danger-soft:#fdecea;--info:#1d5fc4;--info-soft:#e4eeff}
+.demo[data-modo="claro"]{
+  --bg:#f4f5f9;--surface:#fff;--surface2:#eceef5;--text:#14162e;--soft:#5b5f7a;--line:#dfe2ec;
+  --brand:#2b2d8f;--brand-on:#fff;--brand-soft:#ecebfa}
+.demo[data-modo="escuro"]{
+  --bg:#0f1020;--surface:#181a30;--surface2:#20233e;--text:#eceef9;--soft:#9ea2c0;--line:#2a2d4a;
+  --brand:#9a9cff;--brand-on:#10112a;--brand-soft:#24244a;
+  --ok:#5ee3a1;--ok-soft:#15302a;--warn:#ffc266;--warn-soft:#3a2c10;--danger:#ff8f7a;--danger-soft:#3a1a17;--info:#8fb8ff;--info-soft:#14284d;--shadow:0 1px 2px rgb(0 0 0/.4)}
+/* camada 3: produtos */
+.demo[data-produto="lojinha"][data-modo="claro"],.demo[data-produto="pdv"][data-modo="claro"]{--brand:#0b7a68;--brand-on:#fff;--brand-soft:#dcf1ed}
+.demo[data-produto="lojinha"][data-modo="escuro"],.demo[data-produto="pdv"][data-modo="escuro"]{--brand:#4fd1b8;--brand-on:#06231e;--brand-soft:#133530}
+.demo[data-produto="pdv"]{--radius:12px;--radius-lg:16px;--ctl:56px;--pad:16px;--gap:12px;--fs:1.02rem}
+/* Kids: registro expressivo */
+.demo[data-produto="kids"]{--font-display:var(--f-expr);--dw:800;--radius:14px;--radius-lg:20px;--ctl:44px;--pad:16px;--gap:14px;--fs:.95rem;--shadow:0 1px 2px rgb(60 45 10/.05),0 6px 20px rgb(60 45 10/.07)}
+.demo[data-produto="kids"][data-modo="claro"]{--bg:#fbf7ee;--surface:#fff;--surface2:#f3eddd;--text:#16163a;--soft:#5f5f7e;--line:#ece6d6;--brand:#2b2d8f;--brand-on:#fff;--brand-soft:#ecebfa;--sun:#ffc83d;--sun-on:#2a2000;--coral-soft:#ffe0d8;--coral-text:#c2410c}
+.demo[data-produto="kids"][data-modo="escuro"]{--bg:#12122a;--surface:#1c1c3a;--surface2:#232346;--text:#f1f1fb;--soft:#a9a9c8;--line:#2c2c50;--brand:#9a9cff;--brand-on:#12122a;--brand-soft:#24244a;--sun:#ffc83d;--sun-on:#2a2000;--coral-soft:#47201a;--coral-text:#ff9d83;--shadow:0 1px 2px rgb(0 0 0/.3),0 8px 24px rgb(0 0 0/.3)}
+
+/* ===== componentes (só leem tokens) ===== */
+.scr{display:none}
+.demo[data-produto="kids"] .scr[data-p="kids"],
+.demo[data-produto="lojinha"] .scr[data-p="lojinha"],
+.demo[data-produto="pdv"] .scr[data-p="pdv"],
+.demo[data-produto="admin"] .scr[data-p="admin"]{display:flex;flex-direction:column;gap:var(--gap)}
+.demo .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.demo .num{font-variant-numeric:tabular-nums}
+.lbl{font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--soft)}
+.btn{font:inherit;font-size:1em;font-weight:700;border:1px solid transparent;border-radius:var(--radius);padding:0 16px;min-height:var(--ctl);cursor:pointer;transition:filter .12s,transform .12s}
+.btn:hover{filter:brightness(.94)}.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--brand);color:var(--brand-on)}
+.btn.sun{background:var(--sun);color:var(--sun-on)}
+.btn.sec{background:var(--surface);color:var(--text);border-color:var(--line)}
+.btn.danger{background:var(--danger);color:#fff}
+.btn.ghost{background:transparent;color:var(--brand)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.demo button:focus-visible,.demo input:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow);padding:var(--pad);display:flex;flex-direction:column;gap:10px;min-width:0}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:.76rem;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
+.badge::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.badge.ok{background:var(--ok-soft);color:var(--ok)}.badge.warn{background:var(--warn-soft);color:var(--warn)}
+.badge.err{background:var(--danger-soft);color:var(--danger)}.badge.info{background:var(--info-soft);color:var(--info)}.badge.neutral{background:var(--surface2);color:var(--soft)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--gap)}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);padding:var(--pad);display:flex;flex-direction:column;gap:4px;min-width:0}
+.kpi .v{font-size:1.6rem;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+.kpi .d{font-size:.8rem;font-weight:700;font-variant-numeric:tabular-nums}
+.d.up{color:var(--ok)}.d.down{color:var(--danger)}
+.dt-wrap{overflow-x:auto}
+table.dt{width:100%;border-collapse:collapse;font-size:1em;min-width:460px}
+.dt th{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--soft);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);font-weight:700}
+.dt td{padding:9px 10px;border-bottom:1px solid var(--line)}
+.dt tr:last-child td{border-bottom:0}
+.dt .r{text-align:right;font-variant-numeric:tabular-nums}
+.dt tbody tr:hover{background:var(--surface2)}
+.bars{display:flex;align-items:flex-end;gap:8px;height:96px}
+.bars div{flex:1;background:var(--brand-soft);border-radius:4px 4px 0 0;position:relative;min-width:0}
+.bars div.hi{background:var(--brand)}
+.bars-x{display:flex;gap:8px;font-size:.7rem;color:var(--soft)}.bars-x span{flex:1;text-align:center}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-size:.82rem;font-weight:700}
+.field input{font:inherit;color:var(--text);background:var(--surface);border:1.5px solid var(--line);border-radius:var(--radius);padding:0 12px;min-height:var(--ctl);width:100%}
+.field input:focus{border-color:var(--brand)}
+/* Kids */
+.k-hero{background:var(--brand);color:var(--brand-on);border-radius:26px;padding:20px;display:flex;flex-direction:column;gap:10px}
+.k-hero .big{font-family:var(--font-display);font-weight:800;font-size:2rem;line-height:1}
+.k-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gap)}
+.k-item{display:flex;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}.k-item:first-of-type{border-top:0}
+.av{width:38px;height:38px;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;font-family:var(--font-display);font-weight:800;flex:none}
+.grow{flex:1;min-width:0}.nm{font-weight:700;line-height:1.2}.sub{font-size:.82rem;color:var(--soft)}
+/* Admin shell */
+.shell{display:grid;grid-template-columns:168px minmax(0,1fr);border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;background:var(--surface)}
+.side{background:var(--surface2);padding:12px;display:flex;flex-direction:column;gap:2px;border-right:1px solid var(--line)}
+.side .logo{font-weight:800;font-size:.95rem;padding:6px 8px 12px;display:flex;align-items:center;gap:8px}
+.side .logo i{width:22px;height:22px;border-radius:6px;background:var(--brand);display:block}
+.side a{padding:7px 10px;border-radius:var(--radius);color:var(--soft);font-weight:600;font-size:.88rem;display:flex;justify-content:space-between;gap:6px}
+.side a.on{background:var(--surface);color:var(--text);box-shadow:var(--shadow)}
+.main{padding:var(--pad);display:flex;flex-direction:column;gap:var(--gap);min-width:0}
+.sys{font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:6px;background:var(--surface2);color:var(--soft)}
+/* PDV */
+.pdv{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:var(--gap)}
+.prods{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;align-content:start}
+.prod{font:inherit;text-align:left;background:var(--surface);color:var(--text);border:1.5px solid var(--line);border-radius:var(--radius);padding:12px;min-height:84px;display:flex;flex-direction:column;justify-content:space-between;gap:6px;cursor:pointer}
+.prod:active{transform:scale(.97);border-color:var(--brand)}
+.prod b{font-size:.95rem;line-height:1.2}.prod span{font-weight:800;font-variant-numeric:tabular-nums;color:var(--brand)}
+.cart{display:flex;flex-direction:column;gap:8px}
+.cart .ln{display:flex;justify-content:space-between;gap:8px;font-variant-numeric:tabular-nums}
+.total{display:flex;justify-content:space-between;align-items:baseline;border-top:2px solid var(--text);padding-top:10px;font-weight:800;font-size:1.5rem;font-variant-numeric:tabular-nums}
+.pay{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pay .btn{padding:0 6px}
+
+/* tabelas e blocos da página */
+.tw{overflow-x:auto;border:1px solid var(--pg-line);border-radius:12px;background:var(--pg-surface)}
+table.pt{border-collapse:collapse;width:100%;font-size:.88rem;min-width:600px}
+.pt th,.pt td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--pg-line);vertical-align:top}
+.pt th{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--pg-soft)}
+.pt tr:last-child td{border-bottom:0}
+.pt td.fixed{font-weight:700}
+.pats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.pat{background:var(--pg-surface);border:1px solid var(--pg-line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.pat .demo{padding:14px;border-radius:10px;--ctl:36px}
+.money{display:flex;flex-direction:column;gap:6px;font-variant-numeric:tabular-nums}
+.money div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed var(--line);padding:4px 0}
+.in{color:var(--ok)}.out{color:var(--danger)}
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.sw{border:1px solid var(--pg-line);border-radius:10px;overflow:hidden;background:var(--pg-surface);min-width:0}
+.sw .chip{height:48px}.sw div:last-child{padding:7px 10px;font-size:.76rem;display:flex;flex-direction:column}
+.sw span{color:var(--pg-soft);font-family:var(--f-mono);font-size:.7rem}
+.flow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:var(--pg-surface);border:1px solid var(--pg-line);border-radius:12px;padding:16px;font-size:.88rem}
+.flow .app{padding:8px 12px;border-radius:8px;background:var(--pg-chip);font-weight:700}
+.flow .hub{padding:8px 12px;border-radius:8px;background:var(--pg-brand);color:var(--pg-brand-on);font-weight:700}
+.flow .ar{color:var(--pg-soft)}
+.decide{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.dc{background:var(--pg-surface);border:1px solid var(--pg-line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.dc .rec{font-size:.82rem;font-weight:700;color:var(--pg-brand)}
+pre{margin:0;background:var(--pg-code);border-radius:12px;padding:16px;overflow-x:auto;font-family:var(--f-mono);font-size:.8rem;line-height:1.6}
+
+@media (max-width:760px){
+  .regs,.layers,.pats,.decide,.pdv,.k-grid{grid-template-columns:minmax(0,1fr)}
+  .shell{grid-template-columns:minmax(0,1fr)}.side{flex-direction:row;flex-wrap:wrap;border-right:0;border-bottom:1px solid var(--line)}.side .logo{width:100%}
+  .demo{padding:14px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+<style>[hidden]{display:none!important}img{max-width:100%}body{margin:0}</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <span class="eyebrow">Igreja IDF · plataforma de sistemas</span>
+  <h1>Uma família visual, dois registros.</h1>
+  <p class="lead">O Kids IDF fala com pais e crianças, por isso é caloroso e arredondado. A Lojinha, o PDV e o Admin são ferramentas de trabalho: precisam de números legíveis, tabelas densas e telas que cansam pouco. O mesmo design system atende os dois, com um registro para cada público.</p>
+  <button class="themebtn" id="pgTheme" type="button">Alternar tema da página</button>
+</header>
+
+<section>
+  <div class="head"><span class="eyebrow">1 · Registros</span><h2>Expressivo para fora, operacional para dentro</h2>
+  <p>Um registro é um pacote de decisões que muda junto: tipografia de título, raio, densidade e quanto a cor de marca aparece.</p></div>
+  <div class="regs">
+    <div class="reg"><span class="tag">Expressivo · uso externo</span><h3>Kids IDF</h3>
+      <ul><li><b>Título:</b> Bricolage Grotesque, peso 800</li><li><b>Forma:</b> cantos de 14 a 26 px, sombra suave</li><li><b>Cor:</b> índigo, sol e coral em áreas grandes</li><li><b>Toque:</b> controles de 44 px, bastante respiro</li><li><b>Fundo:</b> creme quente</li></ul></div>
+    <div class="reg ops"><span class="tag">Operacional · uso interno</span><h3>Lojinha, PDV e Admin</h3>
+      <ul><li><b>Título:</b> Figtree, peso 700 a 800 (a mesma fonte de texto)</li><li><b>Forma:</b> cantos de 8 a 12 px, borda fina, quase sem sombra</li><li><b>Cor:</b> neutros frios; a cor de marca só em ação e seleção</li><li><b>Densidade:</b> 36 px no computador, 56 px no PDV (toque)</li><li><b>Números:</b> sempre tabulares e alinhados à direita</li></ul></div>
+  </div>
+  <div class="layers">
+    <div class="layer"><span class="n">1 · PRIMITIVOS</span><h3>Escalas</h3><p>Paleta, espaço 4-8-12-16-24-32, tipo, movimento. Ninguém usa direto.</p></div>
+    <div class="layer"><span class="n">2 · SEMÂNTICOS</span><h3>Papéis</h3><p><code>surface</code>, <code>text</code>, <code>line</code>, <code>brand</code>, <code>ok</code>, <code>warn</code>, <code>danger</code>. O contrato dos componentes.</p></div>
+    <div class="layer"><span class="n">3 · REGISTRO</span><h3>Expressivo ou operacional</h3><p>Raio, densidade, fonte de título, peso da cor de marca.</p></div>
+    <div class="layer"><span class="n">4 · PRODUTO</span><h3>Tema</h3><p>Só a cor de marca e o nome. Um arquivo pequeno por sistema.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="eyebrow">2 · Laboratório</span><h2>Quatro sistemas, uma família</h2>
+  <p>Cada produto abaixo usa os mesmos componentes (botão, cartão, selo, tabela, KPI). Só mudam os tokens. A Lojinha, o PDV e o Admin são propostas minhas, com dados de exemplo.</p></div>
+  <div class="lab">
+    <div class="controls">
+      <div class="ctl"><span class="lab-label">Produto</span>
+        <div class="seg" id="segProduto" role="group" aria-label="Produto">
+          <button type="button" data-v="admin" aria-pressed="true">Admin</button>
+          <button type="button" data-v="lojinha" aria-pressed="false">Lojinha</button>
+          <button type="button" data-v="pdv" aria-pressed="false">PDV</button>
+          <button type="button" data-v="kids" aria-pressed="false">Kids IDF</button>
+        </div></div>
+      <div class="ctl"><span class="lab-label">Tema</span>
+        <div class="seg" id="segModo" role="group" aria-label="Tema">
+          <button type="button" data-v="claro" aria-pressed="true">Claro</button>
+          <button type="button" data-v="escuro" aria-pressed="false">Escuro</button>
+        </div></div>
+    </div>
+    <div class="meta" id="meta"></div>
+
+    <div class="demo" id="demo" data-produto="admin" data-modo="claro">
+
+      <!-- ADMIN -->
+      <div class="scr" data-p="admin">
+        <div class="shell">
+          <nav class="side" aria-label="Sistemas">
+            <div class="logo"><i></i>IDF Admin</div>
+            <a class="on">Visão geral</a><a>Kids <span class="sys">Kids IDF</span></a><a>Lojinha</a><a>Caixa</a><a>Pessoas</a><a>Auditoria</a>
+          </nav>
+          <div class="main">
+            <div class="row" style="justify-content:space-between"><h3 style="font-size:1.15rem">Visão geral · outubro</h3><div class="row"><button class="btn sec" type="button">Exportar</button><button class="btn primary" type="button">Novo usuário</button></div></div>
+            <div class="kpis">
+              <div class="kpi"><span class="lbl">Crianças hoje</span><span class="v">142</span><span class="d up">▲ 8% vs. domingo</span></div>
+              <div class="kpi"><span class="lbl">Vendas da lojinha</span><span class="v">R$ 3.480</span><span class="d up">▲ 12%</span></div>
+              <div class="kpi"><span class="lbl">Saldo do caixa</span><span class="v">R$ 12.915</span><span class="d down">▼ R$ 640 na semana</span></div>
+              <div class="kpi"><span class="lbl">Alertas</span><span class="v">3</span><span class="d">2 de estoque, 1 de acesso</span></div>
+            </div>
+            <div class="card dt-wrap" style="padding:6px">
+              <table class="dt"><thead><tr><th>Quando</th><th>Sistema</th><th>Evento</th><th class="r">Valor</th><th>Estado</th></tr></thead><tbody>
+                <tr><td class="num">10:42</td><td><span class="sys">Lojinha</span></td><td>Venda #4821 finalizada</td><td class="r">R$ 87,00</td><td><span class="badge ok">Pago</span></td></tr>
+                <tr><td class="num">10:31</td><td><span class="sys">Kids</span></td><td>Culto das 10h aberto</td><td class="r">—</td><td><span class="badge info">Em andamento</span></td></tr>
+                <tr><td class="num">09:58</td><td><span class="sys">Lojinha</span></td><td>Estoque baixo: Bíblia infantil</td><td class="r">3 un.</td><td><span class="badge warn">Repor</span></td></tr>
+                <tr><td class="num">09:12</td><td><span class="sys">Caixa</span></td><td>Sangria registrada</td><td class="r out">− R$ 500,00</td><td><span class="badge neutral">Conferido</span></td></tr>
+              </tbody></table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOJINHA -->
+      <div class="scr" data-p="lojinha">
+        <div class="row" style="justify-content:space-between"><h3 style="font-size:1.15rem">Estoque e vendas</h3><div class="row"><button class="btn sec" type="button">Importar</button><button class="btn primary" type="button">Novo produto</button></div></div>
+        <div class="kpis">
+          <div class="kpi"><span class="lbl">Vendas hoje</span><span class="v">R$ 1.236,50</span><span class="d up">▲ 12%</span></div>
+          <div class="kpi"><span class="lbl">Ticket médio</span><span class="v">R$ 41,20</span><span class="d down">▼ 3%</span></div>
+          <div class="kpi"><span class="lbl">Abaixo do mínimo</span><span class="v">7</span><span class="d">produtos</span></div>
+        </div>
+        <div class="pdv" style="grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)">
+          <div class="card dt-wrap" style="padding:6px"><table class="dt"><thead><tr><th>Produto</th><th class="r">Preço</th><th class="r">Estoque</th><th>Estado</th></tr></thead><tbody>
+            <tr><td>Camiseta IDF · M</td><td class="r">R$ 59,90</td><td class="r">24</td><td><span class="badge ok">Em dia</span></td></tr>
+            <tr><td>Bíblia infantil</td><td class="r">R$ 39,00</td><td class="r">3</td><td><span class="badge warn">Baixo</span></td></tr>
+            <tr><td>Caneca</td><td class="r">R$ 29,00</td><td class="r">0</td><td><span class="badge err">Esgotado</span></td></tr>
+            <tr><td>Café coado</td><td class="r">R$ 6,00</td><td class="r">—</td><td><span class="badge neutral">Sem controle</span></td></tr>
+          </tbody></table></div>
+          <div class="card"><span class="lbl">Vendas da semana</span>
+            <div class="bars" aria-hidden="true"><div style="height:42%"></div><div style="height:58%"></div><div style="height:35%"></div><div style="height:64%"></div><div style="height:50%"></div><div style="height:72%"></div><div class="hi" style="height:100%"></div></div>
+            <div class="bars-x"><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span><span>D</span></div></div>
+        </div>
+      </div>
+
+      <!-- PDV -->
+      <div class="scr" data-p="pdv">
+        <div class="pdv">
+          <div class="prods">
+            <button class="prod" type="button"><b>Camiseta IDF</b><span>R$ 59,90</span></button>
+            <button class="prod" type="button"><b>Bíblia infantil</b><span>R$ 39,00</span></button>
+            <button class="prod" type="button"><b>Caneca</b><span>R$ 29,00</span></button>
+            <button class="prod" type="button"><b>Café coado</b><span>R$ 6,00</span></button>
+            <button class="prod" type="button"><b>Pão de queijo</b><span>R$ 5,00</span></button>
+            <button class="prod" type="button"><b>Água</b><span>R$ 3,50</span></button>
+          </div>
+          <div class="card cart">
+            <span class="lbl">Venda #4822</span>
+            <div class="ln"><span>1 × Camiseta IDF</span><b>R$ 59,90</b></div>
+            <div class="ln"><span>2 × Café coado</span><b>R$ 12,00</b></div>
+            <div class="total"><span>Total</span><span>R$ 71,90</span></div>
+            <div class="pay"><button class="btn sec" type="button">Pix</button><button class="btn sec" type="button">Cartão</button><button class="btn sec" type="button">Dinheiro</button></div>
+            <button class="btn primary" type="button">Cobrar R$ 71,90</button>
+            <button class="btn ghost" type="button">Cancelar venda</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- KIDS -->
+      <div class="scr" data-p="kids">
+        <div class="k-grid">
+          <div class="k-hero">
+            <span class="badge" style="align-self:flex-start;background:rgb(255 255 255/.16);color:var(--brand-on)">Aberto agora</span>
+            <div class="big">Culto das 10h</div><div style="opacity:.85">38 presentes · 6 salas ativas</div>
+            <div class="row"><button class="btn sun" type="button">Fazer entrada</button></div>
+          </div>
+          <div class="card">
+            <span class="lbl">Em sala</span>
+            <div><div class="k-item"><div class="av">AL</div><div class="grow"><div class="nm">Ana Lima</div><div class="sub">Sala Girassol · 4 anos</div></div><span class="badge ok">Em sala</span></div>
+            <div class="k-item"><div class="av">CL</div><div class="grow"><div class="nm">Caio Lima</div><div class="sub">Sala Arca · 7 anos</div></div><span class="badge warn">Alergia</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="eyebrow">3 · O que é fixo e o que varia</span><h2>O contrato da família</h2></div>
+  <div class="tw"><table class="pt">
+    <thead><tr><th>Decisão</th><th>Kids IDF</th><th>Lojinha · Admin</th><th>PDV</th><th>Quem decide</th></tr></thead>
+    <tbody>
+      <tr><td class="fixed">Fonte de texto</td><td>Figtree</td><td>Figtree</td><td>Figtree</td><td>Fixo (família)</td></tr>
+      <tr><td class="fixed">Fonte de título</td><td>Bricolage 800</td><td>Figtree 700</td><td>Figtree 700</td><td>Registro</td></tr>
+      <tr><td class="fixed">Raio</td><td>14 / 20 / 26 px</td><td>8 / 12 px</td><td>12 / 16 px</td><td>Registro</td></tr>
+      <tr><td class="fixed">Altura do controle</td><td>44 px</td><td>36 px</td><td>56 px</td><td>Registro</td></tr>
+      <tr><td class="fixed">Cor de marca</td><td>Índigo + sol</td><td>Teal (Lojinha) · índigo (Admin)</td><td>Teal</td><td>Produto</td></tr>
+      <tr><td class="fixed">ok · warn · danger · info</td><td colspan="3">Idênticos em todos. Quem lê um selo verde entende igual em qualquer sistema.</td><td>Fixo</td></tr>
+      <tr><td class="fixed">Claro e escuro</td><td colspan="3">Todo token nasce com os dois valores.</td><td>Fixo</td></tr>
+    </tbody></table></div>
+</section>
+
+<section>
+  <div class="head"><span class="eyebrow">4 · Padrões de sistema profissional</span><h2>O que um sistema de dinheiro e estoque exige</h2>
+  <p>Estes padrões entram no pacote desde o início, porque erro de formato ou de estado em tela financeira custa caro.</p></div>
+  <div class="pats">
+    <div class="pat"><h3>Dinheiro</h3>
+      <p class="soft">Sempre <code>R$ 1.234,50</code>, alinhado à direita, com fonte tabular. Saída leva sinal e cor, nunca só cor.</p>
+      <div class="demo" data-produto="lojinha" data-modo="claro" style="background:var(--surface2)"><div class="money">
+        <div><span>Venda #4821</span><b class="in">+ R$ 87,00</b></div><div><span>Sangria</span><b class="out">− R$ 500,00</b></div><div><span>Troco</span><b>R$ 3,00</b></div><div style="border:0"><b>Saldo</b><b>R$ 12.915,00</b></div></div></div></div>
+    <div class="pat"><h3>Estados</h3>
+      <p class="soft">Selo com texto e ponto, não só cor. O vocabulário é único em toda a plataforma.</p>
+      <div class="demo" data-produto="lojinha" data-modo="claro" style="background:var(--surface2)"><div class="row">
+        <span class="badge ok">Pago</span><span class="badge info">Em andamento</span><span class="badge warn">Repor</span><span class="badge err">Esgotado</span><span class="badge neutral">Conferido</span></div></div></div>
+    <div class="pat"><h3>Ação destrutiva</h3>
+      <p class="soft">Vermelho só no botão final, com o nome do que vai acontecer. Em dinheiro, pede motivo e fica na auditoria.</p>
+      <div class="demo" data-produto="lojinha" data-modo="claro" style="background:var(--surface2)"><div class="card"><b>Cancelar venda #4821?</b><span class="sub">R$ 87,00 serão estornados. Esta ação fica registrada.</span><div class="field"><label for="mot">Motivo</label><input id="mot" value="Cliente desistiu"></div><div class="row"><button class="btn danger" type="button">Cancelar venda</button><button class="btn sec" type="button">Voltar</button></div></div></div></div>
+    <div class="pat"><h3>PDV: toque e velocidade</h3>
+      <p class="soft">Controles de 56 px, texto maior, uma ação principal por tela e atalhos de teclado (<code>F2</code> cobrar, <code>Esc</code> cancelar) para quem usa leitor de código de barras.</p>
+      <div class="demo" data-produto="pdv" data-modo="claro" style="background:var(--surface2)"><div class="row"><button class="btn primary" type="button">Cobrar R$ 71,90</button><button class="btn sec" type="button">Pix</button></div></div></div>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="eyebrow">5 · Amarração entre sistemas</span><h2>O Admin é o painel que enxerga todos</h2>
+  <p>Visual igual não basta: o Admin precisa de uma linguagem de dados comum para somar tudo. Duas regras mantêm isso simples.</p></div>
+  <div class="flow"><span class="app">Kids IDF</span><span class="app">Lojinha</span><span class="app">PDV</span><span class="ar">→ login único e eventos padronizados →</span><span class="hub">IDF Admin</span></div>
+  <div class="pats">
+    <div class="pat"><h3>Login único e seletor de apps</h3><p class="soft">Uma conta, um menu “Meus sistemas” igual em todos os produtos, para ir de um a outro sem novo login. O visual do menu vem do pacote.</p></div>
+    <div class="pat"><h3>Contrato de eventos</h3><p class="soft">Cada sistema publica o mesmo formato (<code>sistema</code>, <code>evento</code>, <code>quando</code>, <code>valor</code>, <code>estado</code>). A tabela “atividade recente” do Admin é só a leitura disso.</p></div>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="eyebrow">6 · Paleta compartilhada</span><h2>Neutros e estados são da igreja inteira</h2></div>
+  <div class="swatches" id="sws"></div>
+  <pre><code>/* tema do produto: o único arquivo que a Lojinha escreve (camada 4) */
+[data-produto="lojinha"] {
+  --brand:      #0b7a68;
+  --brand-on:   #ffffff;
+  --brand-soft: #dcf1ed;
+}
+/* registro operacional (camada 3), compartilhado por Lojinha, PDV e Admin */
+[data-registro="operacional"] { --radius: 8px; --ctl: 36px; --font-display: var(--font-body); }</code></pre>
+</section>
+
+<section>
+  <div class="head"><span class="eyebrow">7 · Decisões para você</span><h2>Antes de começar a codar</h2></div>
+  <div class="decide">
+    <div class="dc"><h3>Qual a cor do comércio?</h3><p class="soft">Lojinha e PDV com um mesmo teal, para parecerem uma só frente. Alternativa: usar o índigo da igreja em tudo que é interno.</p><span class="rec">Recomendo: teal na Lojinha e no PDV, índigo no Admin.</span></div>
+    <div class="dc"><h3>O PDV roda onde?</h3><p class="soft">Tablet ou celular no balcão pede toque grande. Computador com leitor de código de barras pede teclado. Define se o PDV é touch-first.</p><span class="rec">Recomendo: touch-first, com atalhos de teclado.</span></div>
+    <div class="dc"><h3>O PDV funciona sem internet?</h3><p class="soft">Venda em balcão não pode parar. Modo offline muda arquitetura de dados, não só tela.</p><span class="rec">Decidir cedo: o design system só precisa de um estado “sem conexão” pronto.</span></div>
+    <div class="dc"><h3>Um repositório para o pacote?</h3><p class="soft">Pacote <code>@idf/ui</code> com tokens (CSS e JSON) e componentes React, versionado, consumido pelos quatro apps.</p><span class="rec">Recomendo: pacote próprio. Primeiro tokens, depois componentes.</span></div>
+  </div>
+</section>
+
+</div>
+
+<script>
+(function(){
+  var root=document.documentElement;
+  document.getElementById('pgTheme').addEventListener('click',function(){
+    var dark=root.getAttribute('data-theme')==='dark'||(!root.getAttribute('data-theme')&&matchMedia('(prefers-color-scheme: dark)').matches);
+    root.setAttribute('data-theme',dark?'light':'dark');
+  });
+  var demo=document.getElementById('demo'),meta=document.getElementById('meta');
+  var info={
+    admin:['Operacional','Figtree 700','8 / 12 px','36 px','Índigo'],
+    lojinha:['Operacional','Figtree 700','8 / 12 px','36 px','Teal'],
+    pdv:['Operacional · toque','Figtree 700','12 / 16 px','56 px','Teal'],
+    kids:['Expressivo','Bricolage 800','14 / 20 / 26 px','44 px','Índigo + sol']};
+  function showMeta(){var i=info[demo.getAttribute('data-produto')];
+    meta.innerHTML='<span>Registro <b>'+i[0]+'</b></span><span>Título <b>'+i[1]+'</b></span><span>Raio <b>'+i[2]+'</b></span><span>Controle <b>'+i[3]+'</b></span><span>Marca <b>'+i[4]+'</b></span>';}
+  function setPressed(id,v){document.querySelectorAll('#'+id+' button').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.v===v))})}
+  if(matchMedia('(prefers-color-scheme: dark)').matches){demo.setAttribute('data-modo','escuro');setPressed('segModo','escuro')}
+  [['segProduto','data-produto'],['segModo','data-modo']].forEach(function(p){
+    document.getElementById(p[0]).addEventListener('click',function(e){
+      var b=e.target.closest('button');if(!b)return;
+      demo.setAttribute(p[1],b.dataset.v);setPressed(p[0],b.dataset.v);showMeta();
+    });
+  });
+  showMeta();
+  var cores=[['brand · índigo','#2b2d8f'],['brand · teal','#0b7a68'],['ok','#127a4b'],['warn','#9a5b00'],['danger','#c4321c'],['info','#1d5fc4'],['bg','#f4f5f9'],['line','#dfe2ec'],['text','#14162e'],['soft','#5b5f7a'],['dark bg','#0f1020'],['dark surface','#181a30']];
+  document.getElementById('sws').innerHTML=cores.map(function(c){
+    return '<div class="sw"><div class="chip" style="background:'+c[1]+'"></div><div><b>'+c[0]+'</b><span>'+c[1]+'</span></div></div>';
+  }).join('');
+})();
+</script>
+</body>
+</html>

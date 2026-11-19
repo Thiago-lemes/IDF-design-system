@@ -1,0 +1,11 @@
+{
+  "name": "idf-design-system",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": ["packages/*"],
+  "scripts": {
+    "test": "node --test packages/ui/test/*.test.mjs packages/create-idf-app/test/*.test.mjs"
+  },
+  "engines": { "node": ">=20" }
+}

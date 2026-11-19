@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Design System IDF</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@500;700;800&display=swap">
+<style>
+:root{--bg:#f4f5f9;--surface:#fff;--text:#14162e;--soft:#5b5f7a;--line:#dfe2ec;--brand:#2b2d8f;--chip:#eceef5;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1020;--surface:#181a30;--text:#eceef9;--soft:#9ea2c0;--line:#2a2d4a;--brand:#9a9cff;--chip:#20233e;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Figtree",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-weight:500;line-height:1.55;
+  padding:32px max(16px,env(safe-area-inset-right,0px)) 64px max(16px,env(safe-area-inset-left,0px))}
+main{max-width:760px;margin-inline:auto;display:flex;flex-direction:column;gap:28px}
+h1{margin:0;font-size:clamp(1.9rem,5vw,2.8rem);font-weight:800;line-height:1.1;letter-spacing:-.015em;text-wrap:balance}
+p{margin:0;max-width:62ch;color:var(--soft)}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--soft)}
+.lista{display:flex;flex-direction:column;gap:12px}
+a.pagina{display:flex;flex-direction:column;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 20px;color:inherit;text-decoration:none}
+a.pagina:hover{border-color:var(--brand)}
+a.pagina:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+a.pagina b{font-size:1.05rem}
+a.pagina span{color:var(--soft);font-size:.92rem}
+a.pagina i{font-style:normal;font-weight:800;font-size:.7rem;letter-spacing:.1em;color:var(--brand)}
+.nota{font-size:.85rem;background:var(--chip);border-radius:10px;padding:12px 14px}
+</style>
+</head>
+<body>
+<main>
+  <header style="display:flex;flex-direction:column;gap:12px">
+    <span class="eyebrow">Igreja IDF · design system</span>
+    <h1>Veja como os sistemas ficam.</h1>
+    <p>Três páginas para abrir no navegador e mexer: trocar a cor, o tema claro e escuro, o celular e o computador. Servem de referência visual para quem for desenvolver.</p>
+  </header>
+
+  <div class="lista">
+    <a class="pagina" href="01-conceito.html"><i>1 · CONCEITO</i><b>A família visual</b><span>Os dois registros (expressivo para o público, operacional para a equipe) e como Kids, Lojinha, PDV e Admin se parecem.</span></a>
+    <a class="pagina" href="02-componentes.html"><i>2 · COMPONENTES</i><b>Catálogo e configurador</b><span>Botões, campos, alertas, avisos, tabelas e o shell de PWA. Digite um nome e uma cor e veja tudo se ajustar, com checagem de contraste.</span></a>
+    <a class="pagina" href="03-padroes.html"><i>3 · PADRÕES</i><b>Menu, venda, erros e segurança</b><span>O menu lateral e o canto superior direito funcionando, uma tela de venda para clicar, o painel de erro e as regras de segurança do front.</span></a>
+  </div>
+
+  <p class="nota">Abra com duplo clique, sem instalar nada. A fonte Figtree vem da internet; sem conexão a página usa a fonte do sistema e continua funcionando. Os dados (produtos, vendas, nomes) são exemplos inventados. Os padrões em texto estão em <code>../padroes.md</code>.</p>
+</main>
+</body>
+</html>
