@@ -30,6 +30,9 @@
   --t-toque: 120ms;
   --t-troca: 200ms;
   --t-entra: 300ms;
+  --ease-sai: cubic-bezier(0.4, 0, 1, 1);      /* saídas: acelera */
+  --ease-entra: cubic-bezier(0.16, 1, 0.3, 1);  /* entradas: desacelera suave */
+  --ease-troca: cubic-bezier(0.4, 0, 0.2, 1);   /* trocas de estado */
 
   font-family: var(--font-body);
   background: var(--bg);

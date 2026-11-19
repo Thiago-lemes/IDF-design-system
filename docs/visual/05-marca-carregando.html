@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Marca em carregamento</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@500;600;700;800&display=swap">
+<link rel="stylesheet" href="../../packages/ui/src/tokens/tokens.css">
+<link rel="stylesheet" href="../../packages/ui/src/tokens/motion.css">
+<link rel="stylesheet" href="../../packages/ui/src/tokens/marca.css">
+<style>
+/* Só layout da demonstração. A marca e as animações vêm do pacote. */
+:root{--brand:#2b2d8f;--brand-on:#fff;--f-mono:ui-monospace,"Cascadia Code",Consolas,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-tema="claro"]){--brand:#9a9cff;--brand-on:#14162e}}
+:root[data-tema="escuro"]{--brand:#9a9cff;--brand-on:#14162e}
+html[data-reduzir]{--t-toque:0ms;--t-troca:0ms;--t-entra:0ms}
+html[data-reduzir] .idf-marca > i{animation:none!important;opacity:1;transform:none}
+html[data-reduzir] .idf-marca[data-marca]{animation:idf-marca-pulsa 2.4s ease-in-out infinite}
+html[data-reduzir] .idf-skel{animation:none}
+html[data-reduzir] .idf-abertura .palavra{animation:none}
+*{box-sizing:border-box}
+body{margin:0;font-weight:500;line-height:1.55;-webkit-font-smoothing:antialiased;padding:24px max(16px,env(safe-area-inset-right,0px)) 80px max(16px,env(safe-area-inset-left,0px))}
+.wrap{max-width:1080px;margin-inline:auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{margin:0;line-height:1.12;letter-spacing:-.015em;text-wrap:balance}
+h1{font-size:clamp(2rem,5.2vw,3.1rem);font-weight:800}h2{font-size:1.55rem;font-weight:800}h3{font-size:1rem;font-weight:700}
+p{margin:0;max-width:66ch}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--soft)}
+.soft{color:var(--soft)}
+code{font-family:var(--f-mono);font-size:.82em;background:var(--surface-2);padding:.1em .4em;border-radius:6px}
+section{display:flex;flex-direction:column;gap:18px;min-width:0}
+.top{display:flex;flex-direction:column;gap:16px;padding-top:8px}
+.lead{font-size:1.1rem;color:var(--soft)}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+button{font:inherit;font-weight:700;font-size:.86rem;color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);min-height:var(--ctl);padding:0 14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+button.pri{background:var(--brand);color:var(--brand-on);border-color:transparent}
+button:focus-visible,input:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+label.sw{display:inline-flex;gap:8px;align-items:center;font-weight:600;font-size:.9rem;cursor:pointer}
+label.sw input{accent-color:var(--brand)}
+input[type=color]{width:36px;height:30px;padding:0;border:1px solid var(--line);border-radius:6px;background:none;cursor:pointer}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.stage{height:190px;border-radius:10px;background:var(--surface-2);display:grid;place-items:center}
+.logo-fixo{display:grid;justify-items:center;gap:12px;color:var(--marca-cor,var(--text))}
+.logo-fixo .palavra{width:150px;aspect-ratio:562/259;background:currentColor;-webkit-mask:var(--marca-palavra) center/contain no-repeat;mask:var(--marca-palavra) center/contain no-repeat}
+/* Celular de abertura */
+.duo{display:grid;grid-template-columns:minmax(0,300px) 1fr;gap:24px;align-items:start}
+@media(max-width:760px){.duo{grid-template-columns:1fr}}
+.fone{border:8px solid var(--text);border-radius:34px;height:520px;overflow:hidden;position:relative;background:var(--bg);max-width:300px;width:100%}
+.fone .tela{position:absolute;inset:0;display:flex;flex-direction:column}
+.fone .abre{flex:1;display:grid}
+.fone .prog{height:4px;margin:0 40px 56px;border-radius:999px;background:var(--line);overflow:hidden}
+.fone .prog i{display:block;height:100%;background:var(--marca-cor,var(--text));transform-origin:left;transform:scaleX(0)}
+.fone.rodando .prog i{animation:cheia 2.4s var(--ease-troca) forwards}
+@keyframes cheia{to{transform:scaleX(1)}}
+.fone .home{position:absolute;inset:0;padding:48px 16px 16px;display:flex;flex-direction:column;gap:10px;background:var(--bg)}
+.fone .home .tile{display:flex;justify-content:space-between;padding:12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);font-weight:600;font-size:.9rem}
+html[data-reduzir] .fone.rodando .prog i{animation-duration:.01ms}
+.quando{border-collapse:collapse;width:100%;font-size:.9rem;min-width:560px}
+.quando th,.quando td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.quando th{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--soft)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.snip{font-family:var(--f-mono);font-size:.78rem;background:var(--surface-2);border-radius:10px;padding:12px 14px;overflow-x:auto;white-space:pre;margin:0}
+.centro{display:grid;place-items:center;gap:10px;padding:26px 10px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <span class="eyebrow">Igreja da Fazenda · design system · marca</span>
+  <h1>A logo no carregamento.</h1>
+  <p class="lead">O símbolo da igreja são seis traços. Cada um virou uma camada, na cor que o tema pedir. Duas animações: <b>monta</b>, para abrir o app, e <b>tracos</b>, para carregar. Só <code>transform</code> e <code>opacity</code>.</p>
+  <div class="bar">
+    <button id="tema" type="button">Alternar tema</button>
+    <label class="sw"><input id="reduzir" type="checkbox"> Simular “reduzir movimento”</label>
+    <label class="sw">Cor <input id="cor" type="color" value="#14162e" aria-label="Cor da marca"></label>
+    <button id="zera" type="button">Cor do tema</button>
+  </div>
+</header>
+
+<section>
+  <h2>Duas animações padrão</h2>
+  <div class="grid">
+    <div class="card"><h3>Marca original</h3><div class="stage"><div class="logo-fixo"><span class="idf-marca" data-tam="gr"></span><span class="palavra"></span></div></div><span class="soft">Referência, parada.</span></div>
+    <div class="card"><h3>tracos · carregamento</h3><div class="stage"><span class="idf-marca" data-marca="tracos" data-tam="gr" role="status" aria-label="Carregando"></span></div><span class="soft">Padrão do dia a dia: painel, tela e botão. Os traços acendem um a um, de baixo para cima.</span></div>
+    <div class="card"><h3>monta · abertura</h3><div class="stage"><span class="idf-marca" data-marca="monta" data-tam="gr" role="status" aria-label="Carregando"></span></div><span class="soft">Momento de identidade: abertura do app e troca de sistema. Cada traço chega do seu canto e se encaixa.</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>Abertura do app</h2>
+  <p class="soft">Primeira carga ou volta de um app fechado: símbolo, nome e barra de progresso. Quando o app fica pronto, a marca sai com fade.</p>
+  <div class="duo">
+    <div class="fone" id="fone">
+      <div class="home" id="home" hidden>
+        <b style="font-size:1.2rem">Olá, Marina</b>
+        <div class="tile"><span>Culto de domingo</span><span class="soft">09:00</span></div>
+        <div class="tile"><span>Célula Centro</span><span class="soft">Qua · 19:30</span></div>
+        <div class="tile"><span>Kids · Maternal</span><span class="soft">Dom · 09:00</span></div>
+      </div>
+      <div class="tela" id="tela">
+        <div class="abre"><div class="idf-abertura"><span class="idf-marca" data-marca="monta" data-tam="gr" role="status" aria-label="Abrindo o app"></span><span class="palavra"></span></div></div>
+        <div class="prog"><i></i></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="bar"><button class="pri" id="roda" type="button">Reproduzir abertura</button></div>
+      <pre class="snip">&lt;div class="idf-abertura"&gt;
+  &lt;span class="idf-marca" data-marca="monta" data-tam="gr"
+        role="status" aria-label="Abrindo o app"&gt;
+    &lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;
+  &lt;/span&gt;
+  &lt;span class="palavra"&gt;&lt;/span&gt;
+&lt;/div&gt;</pre>
+      <p class="soft">Importe <code>@idf/ui/marca.css</code> depois de <code>motion.css</code>. A cor padrão é a do texto (preto no claro, branco no escuro); troque com <code>--marca-cor</code>.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Em uso</h2>
+  <div class="grid">
+    <div class="card"><h3>Botão</h3><div class="centro"><button class="pri" type="button" disabled style="opacity:.9"><span class="idf-marca" data-marca="tracos" data-tam="pq" style="--marca-cor:currentColor"></span> Salvando</button></div><span class="soft">Tamanho <code>data-tam="pq"</code>, herda a cor do botão.</span></div>
+    <div class="card"><h3>Área da tela</h3><div class="centro" style="background:var(--surface-2);border-radius:10px;min-height:190px"><span class="idf-marca" data-marca="tracos" style="--tam:56px" role="status" aria-label="Carregando cultos"></span><span class="soft">Carregando cultos…</span></div><span class="soft">Painel que demora a responder.</span></div>
+    <div class="card"><h3>Barra do topo</h3><div class="centro" style="background:var(--hero,var(--text));color:#fff;border-radius:10px;min-height:190px"><span class="idf-marca" data-marca="tracos" style="--tam:48px;--marca-cor:#fff" role="status" aria-label="Sincronizando"></span><span style="font-weight:600;font-size:.9rem">Sincronizando…</span></div><span class="soft">Sobre fundo escuro, cor branca.</span></div>
+  </div>
+</section>
+
+<section>
+  <h2>Qual indicador usar</h2>
+  <div class="tw"><table class="quando">
+    <thead><tr><th>Situação</th><th>Use</th><th>Por quê</th></tr></thead>
+    <tbody>
+      <tr><td>Abertura do app, primeira carga, troca de sistema</td><td><b>Marca</b> <code>monta</code> com o nome</td><td>É o momento de identidade; a pessoa espera mais de 1 s.</td></tr>
+      <tr><td>Painel ou tela inteira que demora</td><td><b>Marca</b> <code>tracos</code></td><td>Discreta, não distrai de quem já está no app.</td></tr>
+      <tr><td>Lista ou tabela carregando</td><td><b>Esqueleto</b> <code>.idf-skel</code></td><td>Mostra a forma do que vem; a marca ali pesaria.</td></tr>
+      <tr><td>Botão de destaque, ação de 1 a 3 s</td><td><b>Marca</b> <code>tracos</code> em <code>data-tam="pq"</code></td><td>Cabe no botão e herda a cor dele.</td></tr>
+      <tr><td>Ação curta, menos de 1 s</td><td><b>Spinner</b> <code>.idf-spin</code></td><td>Leve e rápido de ler.</td></tr>
+      <tr><td><b>PDV</b></td><td><b>Spinner</b>, nunca a marca</td><td>A venda não espera animação.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="soft">Reduzir movimento: os traços ficam inteiros e a marca pulsa de leve em opacidade, só para indicar espera. Não distorça a marca, não troque a proporção e deixe espaço livre ao redor igual à altura de um traço.</p>
+</section>
+
+<section>
+  <h2>Nota técnica</h2>
+  <p class="soft">As máscaras vieram do PNG da logo (259 px de altura do símbolo), separado traço a traço. Funciona bem até uns 130 px. Para tamanhos maiores ou impressão, peça o SVG vetorial à identidade visual: dá para trocar as máscaras sem mudar uma linha de CSS ou de uso.</p>
+</section>
+
+</div>
+<script>
+const R = document.documentElement;
+document.querySelectorAll(".idf-marca").forEach((m) => { m.innerHTML = "<i></i>".repeat(6); });
+document.getElementById("reduzir").addEventListener("change", (e) => R.toggleAttribute("data-reduzir", e.target.checked));
+document.getElementById("tema").addEventListener("click", () => {
+  const escuro = R.dataset.tema ? R.dataset.tema === "escuro" : matchMedia("(prefers-color-scheme: dark)").matches;
+  R.dataset.tema = escuro ? "claro" : "escuro";
+});
+document.getElementById("cor").addEventListener("input", (e) => R.style.setProperty("--marca-cor", e.target.value));
+document.getElementById("zera").addEventListener("click", () => R.style.removeProperty("--marca-cor"));
+// abertura
+const fone = document.getElementById("fone"), tela = document.getElementById("tela"), home = document.getElementById("home");
+let t;
+function abertura() {
+  clearTimeout(t); home.hidden = true; tela.removeAttribute("data-anim"); tela.style.display = "";
+  fone.classList.remove("rodando"); void fone.offsetWidth; fone.classList.add("rodando");
+  t = setTimeout(() => {
+    home.hidden = false; home.setAttribute("data-anim", "fade");
+    tela.setAttribute("data-anim", "sai"); setTimeout(() => { tela.style.display = "none"; }, 260);
+  }, 2600);
+}
+document.getElementById("roda").addEventListener("click", abertura);
+abertura();
+</script>
+</body>
+</html>

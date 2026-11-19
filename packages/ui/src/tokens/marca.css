@@ -1,0 +1,47 @@
+/* @idf/ui · marca da Igreja da Fazenda em carregamento. Importe depois de tokens.css.
+   Uso:  <span class="idf-marca" data-marca="tracos" role="status" aria-label="Carregando"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+   Variantes (data-marca): "monta" (traços se encaixam: abertura do app, troca de sistema) e "tracos" (traços acendem em sequência: carregamento do dia a dia).
+   Tamanho: --tam (padrão 64px). Cor: --marca-cor (padrão: cor do texto). Para botão, use data-tam="pq".
+   Só transform e opacity. Use em carregamento de tela inteira ou acima de ~1 s; em botão e ação curta, prefira .idf-spin. */
+@import "../brand/marca-mascaras.css";
+
+.idf-marca {
+  --tam: 64px;
+  display: inline-block; position: relative; flex: none;
+  width: var(--tam); aspect-ratio: 1;
+  color: var(--marca-cor, var(--text, currentColor));
+}
+.idf-marca[data-tam="pq"] { --tam: 1.15em; }
+.idf-marca[data-tam="gr"] { --tam: 120px; }
+.idf-marca > i {
+  position: absolute; inset: 0; background: currentColor;
+  -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat;
+}
+.idf-marca > i:nth-child(1) { --m: var(--marca-1); --dx: -22%; --dy: 8%;   --n: 0 }
+.idf-marca > i:nth-child(2) { --m: var(--marca-2); --dx: -3%;  --dy: 24%;  --n: 1 }
+.idf-marca > i:nth-child(3) { --m: var(--marca-3); --dx: -2%;  --dy: 4%;   --n: 2 }
+.idf-marca > i:nth-child(4) { --m: var(--marca-4); --dx: -10%; --dy: -24%; --n: 3 }
+.idf-marca > i:nth-child(5) { --m: var(--marca-5); --dx: 16%;  --dy: -8%;  --n: 4 }
+.idf-marca > i:nth-child(6) { --m: var(--marca-6); --dx: 21%;  --dy: -12%; --n: 5 }
+
+@keyframes idf-marca-acende  { 0%, 100% { opacity: 0.14 } 25%, 55% { opacity: 1 } }
+@keyframes idf-marca-monta   { 0% { opacity: 0; transform: translate(var(--dx), var(--dy)) } 30%, 70% { opacity: 1; transform: none } 100% { opacity: 0; transform: translate(calc(var(--dx) * -0.3), calc(var(--dy) * -0.3)) } }
+
+.idf-marca[data-marca="tracos"] > i { animation: idf-marca-acende 1.5s var(--ease-troca, ease-in-out) infinite; animation-delay: calc(var(--n) * 130ms) }
+.idf-marca[data-marca="monta"]  > i { animation: idf-marca-monta 2s var(--ease-entra, ease-out) infinite; animation-delay: calc(var(--n) * 110ms) }
+
+/* Abertura do app: símbolo animado e nome por baixo */
+.idf-abertura { display: grid; justify-items: center; align-content: center; gap: 18px; min-height: 100%; color: var(--marca-cor, var(--text)) }
+.idf-abertura .palavra {
+  width: min(180px, 60%); aspect-ratio: 562 / 259; background: currentColor;
+  -webkit-mask: var(--marca-palavra) center / contain no-repeat; mask: var(--marca-palavra) center / contain no-repeat;
+  animation: idf-fade-in var(--t-entra, 300ms) var(--ease-entra, ease-out) 200ms both;
+}
+
+/* Reduzir movimento: traços ficam inteiros; só um pulso suave de opacidade indica espera */
+@media (prefers-reduced-motion: reduce) {
+  .idf-marca > i { animation: none !important; opacity: 1; transform: none }
+  .idf-marca[data-marca] { animation: idf-marca-pulsa 2.4s ease-in-out infinite }
+  .idf-abertura .palavra { animation: none }
+}
+@keyframes idf-marca-pulsa { 50% { opacity: 0.55 } }

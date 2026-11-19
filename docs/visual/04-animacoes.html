@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Animações IDF</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@500;600;700;800&display=swap">
+<!-- Os arquivos reais do pacote: o que aparece aqui é exatamente o que os sistemas recebem. -->
+<link rel="stylesheet" href="../../packages/ui/src/tokens/tokens.css">
+<link rel="stylesheet" href="../../packages/ui/src/tokens/motion.css">
+<style>
+/* Só layout da página de demonstração. Nenhuma animação é definida aqui, exceto a corrida de curvas. */
+:root{--brand:#2b2d8f;--brand-on:#fff;--brand-soft:#e8e9fb;--f-mono:ui-monospace,"Cascadia Code",Consolas,monospace}
+@media (prefers-color-scheme:dark){:root:not([data-tema="claro"]){--brand:#9a9cff;--brand-on:#14162e;--brand-soft:#23254d}}
+:root[data-tema="escuro"]{--brand:#9a9cff;--brand-on:#14162e;--brand-soft:#23254d}
+html[data-reduzir]{--t-toque:0ms;--t-troca:0ms;--t-entra:0ms}
+html[data-reduzir] .idf-skel{animation:none}
+html[data-reduzir] .idf-spin{animation-duration:1.6s}
+*{box-sizing:border-box}
+body{margin:0;font-weight:500;line-height:1.55;-webkit-font-smoothing:antialiased;
+  padding:24px max(16px,env(safe-area-inset-right,0px)) 80px max(16px,env(safe-area-inset-left,0px))}
+.wrap{max-width:1080px;margin-inline:auto;display:flex;flex-direction:column;gap:56px}
+h1,h2,h3{margin:0;line-height:1.12;letter-spacing:-.015em;text-wrap:balance}
+h1{font-size:clamp(2rem,5.2vw,3.1rem);font-weight:800}h2{font-size:1.55rem;font-weight:800}h3{font-size:1rem;font-weight:700}
+p{margin:0;max-width:66ch}
+.eyebrow{font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--soft)}
+.soft{color:var(--soft)}
+code{font-family:var(--f-mono);font-size:.82em;background:var(--surface-2);padding:.1em .4em;border-radius:6px}
+section{display:flex;flex-direction:column;gap:18px;min-width:0}
+.top{display:flex;flex-direction:column;gap:16px;padding-top:8px}
+.lead{font-size:1.1rem;color:var(--soft)}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+button,.chip{font:inherit;font-weight:700;font-size:.86rem;color:var(--text);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);min-height:var(--ctl);padding:0 14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+button.pri{background:var(--brand);color:var(--brand-on);border-color:transparent}
+button:focus-visible,input:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+label.sw{display:inline-flex;gap:8px;align-items:center;font-weight:600;font-size:.9rem;cursor:pointer}
+label.sw input{width:18px;height:18px;accent-color:var(--brand)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.card header{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.card header span{font-size:.78rem;color:var(--soft)}
+.stage{position:relative;height:150px;overflow:hidden;border-radius:10px;background:var(--surface-2);display:grid;place-items:center}
+.obj{background:var(--brand);color:var(--brand-on);border-radius:var(--radius-lg);padding:12px 18px;font-weight:700;font-size:.9rem;box-shadow:var(--shadow)}
+.obj.claro{background:var(--surface);color:var(--text);border:1px solid var(--line)}
+.panel{position:absolute;background:var(--surface);border:1px solid var(--line);padding:14px;font-weight:700;font-size:.88rem;box-shadow:var(--shadow)}
+.panel.baixo{left:0;right:0;bottom:0;border-radius:16px 16px 0 0;height:70%}
+.panel.esq{top:0;bottom:0;left:0;width:48%;background:var(--brand);color:var(--brand-on);border:0}
+.campo{display:flex;flex-direction:column;gap:4px;width:80%}
+.campo input{font:inherit;min-height:var(--ctl);border:1.5px solid var(--danger);background:var(--surface);color:var(--text);border-radius:var(--radius);padding:0 12px}
+.campo small{color:var(--danger);font-weight:600}
+code.use{font-size:.76rem}
+/* Curvas */
+.curvas{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.curva svg{width:100%;max-width:150px;height:auto;align-self:center;background:var(--surface-2);border-radius:10px}
+.curva .trilho{position:relative;height:22px;background:var(--surface-2);border-radius:999px}
+.curva .bola{position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:var(--brand);transition:transform var(--t-entra)}
+.curva.go .bola{transform:translateX(calc(var(--w,260px) - 22px))}
+.dur{display:flex;flex-direction:column;gap:8px}
+.dur div{display:flex;align-items:center;gap:10px;font-size:.88rem}
+.dur b{min-width:92px;font-family:var(--f-mono);font-size:.78rem}
+.dur i{display:block;height:10px;border-radius:999px;background:var(--brand);width:0}
+.dur.go i{width:var(--w)}
+.dur i{transition:width var(--d) linear}
+/* Em contexto */
+.app{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.app{grid-template-columns:1fr}}
+.tile{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface)}
+.badge{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:var(--danger);color:#fff;font-size:.75rem;font-weight:800}
+.toasts{position:absolute;left:0;right:0;bottom:10px;display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none}
+.toast{background:var(--text);color:var(--bg);border-radius:var(--radius-lg);padding:9px 14px;font-weight:600;font-size:.86rem}
+.lista{display:flex;flex-direction:column;gap:8px}
+.spinrow{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.skels{display:flex;flex-direction:column;gap:8px;width:100%}
+.regras{margin:0;padding-left:1.1em;display:flex;flex-direction:column;gap:6px;color:var(--soft)}
+.regras b{color:var(--text)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <span class="eyebrow">Igreja IDF · design system · movimento</span>
+  <h1>Animações padrão.</h1>
+  <p class="lead">Poucas, curtas e com motivo. Cada uma explica uma mudança: algo entrou, saiu, deu erro ou está carregando. Clique em <b>Reproduzir</b> em cada cartão.</p>
+  <div class="bar">
+    <button id="tema" type="button">Alternar tema</button>
+    <label class="sw"><input id="reduzir" type="checkbox"> Simular “reduzir movimento”</label>
+    <button id="tudo" class="pri" type="button">Reproduzir tudo</button>
+  </div>
+</header>
+
+<section id="tokens">
+  <h2>Duração e curva</h2>
+  <p class="soft">Três tempos e três curvas. Tudo nasce desses seis tokens, então ajustar o ritmo do sistema inteiro é mexer em um lugar.</p>
+  <div class="card">
+    <div class="dur" id="dur">
+      <div><b>--t-toque</b><i style="--w:120px;--d:120ms"></i><span class="soft">120 ms · pressionar, hover</span></div>
+      <div><b>--t-troca</b><i style="--w:200px;--d:200ms"></i><span class="soft">200 ms · estado, fade, popover</span></div>
+      <div><b>--t-entra</b><i style="--w:300px;--d:300ms"></i><span class="soft">300 ms · toast, sheet, lista</span></div>
+    </div>
+    <div class="bar"><button type="button" data-corrida="dur">Reproduzir</button></div>
+  </div>
+  <div class="curvas" id="curvas">
+    <div class="card curva"><h3>--ease-entra</h3>
+      <svg viewBox="0 0 120 120" aria-hidden="true"><path d="M10 110 C 29 10, 46 10, 110 10" fill="none" stroke="var(--brand)" stroke-width="3"/><path d="M10 110H110M10 110V10" stroke="var(--line)" fill="none"/></svg>
+      <div class="trilho"><span class="bola" style="transition-timing-function:var(--ease-entra)"></span></div>
+      <span class="soft">Começa rápido e pousa devagar. Para o que chega.</span><button type="button" data-curva>Reproduzir</button></div>
+    <div class="card curva"><h3>--ease-sai</h3>
+      <svg viewBox="0 0 120 120" aria-hidden="true"><path d="M10 110 C 50 110, 110 70, 110 10" fill="none" stroke="var(--brand)" stroke-width="3"/><path d="M10 110H110M10 110V10" stroke="var(--line)" fill="none"/></svg>
+      <div class="trilho"><span class="bola" style="transition-timing-function:var(--ease-sai)"></span></div>
+      <span class="soft">Começa devagar e acelera. Para o que vai embora.</span><button type="button" data-curva>Reproduzir</button></div>
+    <div class="card curva"><h3>--ease-troca</h3>
+      <svg viewBox="0 0 120 120" aria-hidden="true"><path d="M10 110 C 54 110, 34 10, 110 10" fill="none" stroke="var(--brand)" stroke-width="3"/><path d="M10 110H110M10 110V10" stroke="var(--line)" fill="none"/></svg>
+      <div class="trilho"><span class="bola" style="transition-timing-function:var(--ease-troca)"></span></div>
+      <span class="soft">Suave nas duas pontas. Para trocar de estado.</span><button type="button" data-curva>Reproduzir</button></div>
+  </div>
+</section>
+
+<section id="catalogo">
+  <h2>Entradas, saídas e feedback</h2>
+  <p class="soft">Um atributo no elemento: <code>data-anim="sobe"</code>. Nada de JavaScript para animar; o script desta página só remove e recoloca o atributo para você rever.</p>
+  <div class="grid">
+    <div class="card"><header><h3>fade</h3><span>200 ms</span></header><div class="stage"><div class="obj" data-demo="fade">Olá</div></div><code class="use">Troca de conteúdo</code><button type="button" data-replay>Reproduzir</button></div>
+    <div class="card"><header><h3>sobe</h3><span>300 ms</span></header><div class="stage"><div class="obj" data-demo="sobe">Item novo</div></div><code class="use">Toast, item adicionado</code><button type="button" data-replay>Reproduzir</button></div>
+    <div class="card"><header><h3>desce</h3><span>200 ms</span></header><div class="stage"><div class="obj claro" data-demo="desce">Minha conta ▾</div></div><code class="use">Menu da conta, avisos</code><button type="button" data-replay>Reproduzir</button></div>
+    <div class="card"><header><h3>escala</h3><span>200 ms</span></header><div class="stage"><div class="obj" data-demo="escala">Confirmar venda?</div></div><code class="use">Modal, popover</code><button type="button" data-replay>Reproduzir</button></div>
+    <div class="card"><header><h3>sheet</h3><span>300 ms</span></header><div class="stage"><div class="panel baixo" data-demo="sheet">Carrinho · 3 itens</div></div><code class="use">Carrinho no celular</code><button type="button" data-replay>Reproduzir</button></div>
+    <div class="card"><header><h3>lateral</h3><span>300 ms</span></header><div class="stage"><div class="panel esq" data-demo="lateral">Menu</div></div><code class="use">Menu lateral no celular</code><button type="button" data-replay>Reproduzir</button></div>
+    <div class="card"><header><h3>sai</h3><span>200 ms</span></header><div class="stage"><div class="obj" data-demo="sai" data-volta="1">Remover</div></div><code class="use">Remoção de item</code><button type="button" data-replay>Reproduzir</button></div>
+    <div class="card"><header><h3>erro</h3><span>300 ms</span></header><div class="stage"><div class="campo" data-demo="erro"><input value="12/3" aria-label="Data"><small>Use o formato 12/03/2026</small></div></div><code class="use">Campo inválido ao enviar</code><button type="button" data-replay>Reproduzir</button></div>
+    <div class="card"><header><h3>pulso</h3><span>200 ms</span></header><div class="stage"><div class="obj" data-demo="pulso">Carrinho <span class="badge">3</span></div></div><code class="use">Contador mudou</code><button type="button" data-replay>Reproduzir</button></div>
+  </div>
+</section>
+
+<section id="lista">
+  <h2>Lista em cascata</h2>
+  <p class="soft"><code>data-anim-lista</code> no contêiner. Cada filho entra 40 ms depois do anterior, até oito; o resto entra junto com o oitavo.</p>
+  <div class="card">
+    <div class="lista" id="cascata" data-anim-lista>
+      <div class="tile"><b>Culto de domingo</b><span class="soft">09:00</span></div>
+      <div class="tile"><b>Célula Centro</b><span class="soft">Quarta · 19:30</span></div>
+      <div class="tile"><b>Kids · Maternal</b><span class="soft">Domingo · 09:00</span></div>
+      <div class="tile"><b>Ensaio do louvor</b><span class="soft">Sábado · 16:00</span></div>
+      <div class="tile"><b>Lojinha · Estoque</b><span class="soft">12 itens baixos</span></div>
+    </div>
+    <div class="bar"><button type="button" id="rodaLista">Reproduzir</button></div>
+  </div>
+</section>
+
+<section id="carregando">
+  <h2>Carregando e toque</h2>
+  <div class="grid">
+    <div class="card"><h3>.idf-spin</h3><div class="spinrow"><span class="idf-spin" style="font-size:28px;color:var(--brand)"></span><button class="pri" type="button" disabled style="opacity:.8"><span class="idf-spin"></span> Salvando</button></div><span class="soft">Único laço que continua em “reduzir movimento”, só que mais lento.</span></div>
+    <div class="card"><h3>.idf-skel</h3><div class="skels"><div class="idf-skel" style="height:16px;width:60%"></div><div class="idf-skel" style="height:12px"></div><div class="idf-skel" style="height:12px;width:80%"></div></div><span class="soft">Esqueleto de lista. Para completamente em “reduzir movimento”.</span></div>
+    <div class="card"><h3>.idf-toque</h3><div class="bar"><button class="pri idf-toque" type="button">Pressione</button><button class="idf-toque" type="button">Pressione</button></div><span class="soft">Escala 0,97 ao pressionar e escurece de leve no hover.</span></div>
+  </div>
+</section>
+
+<section id="contexto">
+  <h2>Juntas, numa venda</h2>
+  <p class="soft">As mesmas peças em uso: item novo sobe, o contador pulsa, o toast confirma, o campo inválido balança.</p>
+  <div class="app">
+    <div class="card">
+      <div class="bar" style="justify-content:space-between"><h3>Lojinha</h3><span>Carrinho <span class="badge" id="cont">0</span></span></div>
+      <div class="lista" id="vitrine">
+        <div class="tile"><b>Camiseta IDF</b><button class="pri idf-toque" type="button" data-add="Camiseta IDF">Adicionar</button></div>
+        <div class="tile"><b>Garrafa térmica</b><button class="pri idf-toque" type="button" data-add="Garrafa térmica">Adicionar</button></div>
+        <div class="tile"><b>Bíblia de estudo</b><button class="pri idf-toque" type="button" data-add="Bíblia de estudo">Adicionar</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Carrinho</h3>
+      <div class="stage" style="height:auto;min-height:190px;place-items:stretch;align-content:start;padding:10px">
+        <div class="lista" id="itens"><span class="soft" id="vazio">Vazio. Adicione um item.</span></div>
+        <div class="toasts" id="toasts"></div>
+      </div>
+      <div class="bar"><input id="cpf" aria-label="CPF na nota" placeholder="CPF na nota" style="font:inherit;min-height:var(--ctl);flex:1;min-width:0;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:var(--radius);padding:0 12px"><button id="fechar" type="button">Fechar venda</button></div>
+    </div>
+  </div>
+</section>
+
+<section id="regras">
+  <h2>Regras</h2>
+  <ul class="regras">
+    <li><b>Movimento explica.</b> Se não indica entrada, saída, erro ou espera, não anima.</li>
+    <li><b>Só transform e opacity.</b> Mantém 60 fps em celular simples.</li>
+    <li><b>Nada acima de 300 ms.</b> A pessoa não espera a animação terminar para continuar.</li>
+    <li><b>PDV sem cascata.</b> A venda não espera animação.</li>
+    <li><b>Reduzir movimento é respeitado.</b> Durações vão a 0, o esqueleto para e o spinner desacelera.</li>
+  </ul>
+</section>
+
+</div>
+<script>
+const R = document.documentElement;
+const rever = (el, v) => { el.removeAttribute("data-anim"); void el.offsetWidth; el.setAttribute("data-anim", v); };
+const toca = (el) => {
+  const v = el.dataset.demo;
+  if (el.dataset.volta) { rever(el, "sai"); setTimeout(() => el.removeAttribute("data-anim"), 900); }
+  else rever(el, v);
+};
+document.querySelectorAll("[data-demo]").forEach((el) => { el.dataset.v = el.dataset.demo; });
+document.querySelectorAll("[data-replay]").forEach((b) => b.addEventListener("click", () => toca(b.closest(".card").querySelector("[data-demo]"))));
+const tocaLista = () => { const l = document.getElementById("cascata"); l.removeAttribute("data-anim-lista"); void l.offsetWidth; l.setAttribute("data-anim-lista", ""); };
+document.getElementById("rodaLista").addEventListener("click", tocaLista);
+const corrida = (id) => { const e = document.getElementById(id); e.classList.remove("go"); void e.offsetWidth; requestAnimationFrame(() => e.classList.add("go")); };
+document.querySelectorAll("[data-corrida]").forEach((b) => b.addEventListener("click", () => corrida(b.dataset.corrida)));
+document.querySelectorAll("[data-curva]").forEach((b) => b.addEventListener("click", () => {
+  const c = b.closest(".curva"); c.classList.remove("go"); void c.offsetWidth;
+  c.style.setProperty("--w", c.querySelector(".trilho").clientWidth + "px");
+  requestAnimationFrame(() => c.classList.add("go"));
+}));
+document.getElementById("tudo").addEventListener("click", () => {
+  document.querySelectorAll("[data-demo]").forEach(toca); tocaLista();
+  document.querySelectorAll("[data-curva]").forEach((b) => b.click()); corrida("dur");
+});
+document.getElementById("reduzir").addEventListener("change", (e) => { R.toggleAttribute("data-reduzir", e.target.checked); });
+document.getElementById("tema").addEventListener("click", () => {
+  const escuro = R.dataset.tema ? R.dataset.tema === "escuro" : matchMedia("(prefers-color-scheme: dark)").matches;
+  R.dataset.tema = escuro ? "claro" : "escuro";
+});
+// Em contexto
+let n = 0;
+document.querySelectorAll("[data-add]").forEach((b) => b.addEventListener("click", () => {
+  n++; document.getElementById("vazio")?.remove();
+  const it = document.createElement("div"); it.className = "tile"; it.setAttribute("data-anim", "sobe");
+  it.innerHTML = "<b></b><span class='soft'>1 un.</span>"; it.firstChild.textContent = b.dataset.add;
+  document.getElementById("itens").append(it);
+  const c = document.getElementById("cont"); c.textContent = n; rever(c, "pulso");
+  toast(b.dataset.add + " adicionado");
+}));
+function toast(t) {
+  const e = document.createElement("div"); e.className = "toast"; e.setAttribute("data-anim", "sobe"); e.textContent = t;
+  const box = document.getElementById("toasts"); box.append(e);
+  setTimeout(() => { e.setAttribute("data-anim", "sai"); setTimeout(() => e.remove(), 250); }, 1800);
+}
+document.getElementById("fechar").addEventListener("click", () => {
+  const i = document.getElementById("cpf");
+  if (!/^\d{11}$/.test(i.value.replace(/\D/g, ""))) { i.style.borderColor = "var(--danger)"; rever(i, "erro"); toast("CPF incompleto"); }
+  else { i.style.borderColor = ""; toast("Venda fechada"); }
+});
+</script>
+</body>
+</html>

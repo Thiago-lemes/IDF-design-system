@@ -25,7 +25,7 @@ Pense numa **rede de franquias**. Toda loja da rede tem o mesmo padrão: uniform
 
 ### Ver como fica
 
-Abra o arquivo [`docs/visual/index.html`](docs/visual/index.html) no navegador (duplo clique, sem instalar nada). São três páginas para mexer: a família visual, o catálogo de componentes (digite um nome e uma cor e veja tudo se ajustar) e os padrões funcionando (menu, tela de venda, painel de erro). Os dados são exemplos inventados.
+Abra o arquivo [`docs/visual/index.html`](docs/visual/index.html) no navegador (duplo clique, sem instalar nada). São cinco páginas para mexer: a família visual, o catálogo de componentes (digite um nome e uma cor e veja tudo se ajustar), os padrões funcionando (menu, tela de venda, painel de erro), as animações padrão e a marca da igreja em carregamento. Os dados são exemplos inventados.
 
 ### O que uma pessoa ganha com isso
 
@@ -72,13 +72,13 @@ O gerador devolve o visual completo da Lojinha, com o verde aplicado em botões,
 
 | Pasta | O que é | Situação |
 | --- | --- | --- |
-| `packages/ui` | `@idf/ui`: os estilos (tokens em CSS) e o cálculo automático de cor com contraste AA | Tokens e cor prontos, com testes. **Falta:** componentes React, menu/shell e painel de erro |
+| `packages/ui` | `@idf/ui`: os estilos (tokens em CSS), as animações padrão (`motion.css`), a marca em carregamento (`marca.css`) e o cálculo automático de cor com contraste AA | Tokens, animações, marca e cor prontos, com testes. **Falta:** componentes React, menu/shell e painel de erro |
 | `packages/create-idf-app` | O gerador: recebe nome + cor e entrega `tema.css`, `manifest.webmanifest` e `idf.json` | Pronto, com testes. **Falta:** gerar o projeto inteiro (menu, service worker, ícones) |
 | `skills/idf-novo-sistema` | Skill para criar sistema novo, escrever telas e revisar | Pronta (v0.1) |
 | `skills/idf-adotar-arquitetura` | Skill que adapta um projeto **que já existe** ao padrão, por fases (começa com um diagnóstico). Leva junto `references/arquitetura-front.md` | Pronta (v0.1) |
 | `.claude-plugin` | Empacota as skills como plugin | Pronto |
-| `docs/padroes.md` | Os cinco padrões e a arquitetura de tokens, em detalhe | Pronto |
-| `docs/visual/` | Páginas HTML autônomas para o desenvolvedor ver e mexer (conceito, componentes, padrões) | Prontas. São demonstrações: ainda não são o código real do `@idf/ui` |
+| `docs/padroes.md` | Os cinco padrões, a arquitetura de tokens, as animações e a marca em carregamento, em detalhe | Pronto |
+| `docs/visual/` | Páginas HTML autônomas para o desenvolvedor ver e mexer (conceito, componentes, padrões, animações, marca) | Prontas. São demonstrações: ainda não são o código real do `@idf/ui` |
 
 ### Qual skill escolher?
 

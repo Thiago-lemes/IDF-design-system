@@ -89,7 +89,7 @@ O `menuLateral.ts` do Pastinho é exatamente isso. A regra: o estado vive no nú
 
 ## O visual (`@idf/ui`)
 
-- **Camada 1, tokens:** `tokens.css` e `tema.css` (gerado). Sem JavaScript.
+- **Camada 1, tokens:** `tokens.css`, `motion.css` (animações padrão), `marca.css` (a marca da igreja em carregamento) e `tema.css` (gerado). Sem JavaScript; o movimento é por atributo (`data-anim`), não por código.
 - **Camada 2, componentes por classe:** `idf-btn`, `idf-campo`, `idf-selo`, `idf-alerta`, `idf-tabela`, `idf-cartao`, `idf-kpi`. Funcionam com HTML puro.
 - **Camada 3, comportamento sem framework:** diálogo, popover, menu da conta, abas, toast e o shell (menu recolhível, sino de avisos) são controladores em `@idf/core` que cuidam de foco, `Esc`, `aria-*` e teclado.
 - **Camada 4, adaptadores:** `@idf/react` primeiro (o Pastinho é React). Cada novo framework ganha o seu adaptador fino. Os controladores e o CSS são reaproveitados.

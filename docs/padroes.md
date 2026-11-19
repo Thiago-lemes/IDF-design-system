@@ -22,6 +22,41 @@ Estados (`ok`, `warn`, `danger`, `info`) são idênticos em todos os produtos. T
 - `--brand-line`: contorno, ícone, trilho de switch. Mínimo 3:1 sobre a superfície.
 - `--hero`: fundo do menu lateral. Texto branco com 4,5:1.
 
+## Animações padrão
+
+Arquivo: `@idf/ui/motion.css` (importe depois de `tokens.css`). Duração e curva vêm de tokens; anime só `transform` e `opacity`.
+
+| Token | Valor | Uso |
+|---|---|---|
+| `--t-toque` | 120 ms | Pressionar, hover |
+| `--t-troca` | 200 ms | Trocar estado, fade, popover |
+| `--t-entra` | 300 ms | Toast, sheet, menu lateral, lista |
+| `--ease-entra`, `--ease-sai`, `--ease-troca` | curvas | Entrar desacelera, sair acelera, trocar é suave |
+
+| Atributo ou classe | Efeito | Onde |
+|---|---|---|
+| `data-anim="fade"`, `"sobe"`, `"desce"`, `"escala"` | Entrada | Item novo, toast, menu da conta, modal |
+| `data-anim="sheet"`, `"lateral"` | Entra por baixo ou pela esquerda | Carrinho e menu no celular |
+| `data-anim="sai"` | Saída com fade | Remoção |
+| `data-anim="erro"`, `"pulso"` | Balança, pulsa | Campo inválido; contador do carrinho ou sino |
+| `data-anim-fundo` | Fade do fundo escurecido | Modal e sheet |
+| `data-anim-lista` | Filhos em cascata (40 ms, até 8) | Listas e grades |
+| `.idf-toque` | Escala 0,97 ao pressionar | Botões e tiles |
+| `.idf-spin`, `.idf-skel` | Carregando | Botão em ação, esqueleto de lista |
+
+Regras: movimento explica uma mudança, nunca enfeita; nada acima de 300 ms; o PDV não usa cascata (a venda não espera animação). Com `prefers-reduced-motion`, as durações vão a 0, o esqueleto para e o spinner desacelera.
+
+## Marca em carregamento
+
+Arquivo: `@idf/ui/marca.css` (depois de `motion.css`). O símbolo da igreja são seis traços, cada um uma camada de máscara; a cor padrão é a do texto (`--marca-cor` troca). Duas animações oficiais, só `transform` e `opacity`:
+
+| Variante | Efeito | Uso |
+|---|---|---|
+| `data-marca="monta"` | Traços chegam dos cantos e se encaixam | Abertura do app (com o nome, `.idf-abertura`), troca de sistema |
+| `data-marca="tracos"` | Traços acendem em sequência | Painel ou tela que demora, botão de destaque (`data-tam="pq"`), barra de sincronização |
+
+Esqueleto (`.idf-skel`) continua nas listas e tabelas; spinner (`.idf-spin`) nas ações de menos de 1 s. O PDV nunca usa a marca. Com `prefers-reduced-motion`, os traços ficam inteiros e a marca pulsa de leve em opacidade. Não distorcer nem trocar a proporção. A fonte é PNG (símbolo com 259 px): nítida até uns 130 px; para mais, trocar as máscaras por SVG vetorial.
+
 ## Os cinco padrões
 
 1. **Menu lateral igual ao do Pastinho.** 236 px na cor `--hero`, abas em pílula (ativa em branco), botão de recolher embaixo (80 px recolhido). Celular: barra superior com logo e barra de abas flutuante embaixo. Pontos de corte 699 px e 1024 px.

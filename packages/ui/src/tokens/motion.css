@@ -1,0 +1,72 @@
+/* @idf/ui · animações padrão. Importe depois de tokens.css.
+   Duração e curva vêm dos tokens (--t-*, --ease-*), então "reduzir movimento" zera tudo num lugar só.
+   Regra: anime só `transform` e `opacity`. Movimento explica uma mudança; nunca enfeita. */
+
+/* ---------- Keyframes ---------- */
+@keyframes idf-fade-in    { from { opacity: 0 } }
+@keyframes idf-fade-out   { to   { opacity: 0 } }
+@keyframes idf-sobe       { from { opacity: 0; transform: translateY(12px) } }
+@keyframes idf-desce      { from { opacity: 0; transform: translateY(-8px) } }
+@keyframes idf-escala-in  { from { opacity: 0; transform: scale(0.96) } }
+@keyframes idf-sheet-in   { from { transform: translateY(100%) } }
+@keyframes idf-lateral-in { from { transform: translateX(-100%) } }
+@keyframes idf-balanca    { 20%, 60% { transform: translateX(-4px) } 40%, 80% { transform: translateX(4px) } }
+@keyframes idf-pulso      { 50% { transform: scale(1.06) } }
+@keyframes idf-gira       { to { transform: rotate(360deg) } }
+@keyframes idf-brilho     { to { background-position: -200% 0 } }
+
+/* ---------- Entradas e saídas (use data-anim) ---------- */
+[data-anim="fade"]    { animation: idf-fade-in    var(--t-troca) var(--ease-troca) both }
+[data-anim="sobe"]    { animation: idf-sobe       var(--t-entra) var(--ease-entra) both }  /* toast, item novo */
+[data-anim="desce"]   { animation: idf-desce      var(--t-troca) var(--ease-entra) both }  /* menu da conta, avisos */
+[data-anim="escala"]  { animation: idf-escala-in  var(--t-troca) var(--ease-entra) both }  /* modal, popover */
+[data-anim="sheet"]   { animation: idf-sheet-in   var(--t-entra) var(--ease-entra) both }  /* carrinho no celular */
+[data-anim="lateral"] { animation: idf-lateral-in var(--t-entra) var(--ease-entra) both }  /* menu lateral no celular */
+[data-anim="sai"]     { animation: idf-fade-out   var(--t-troca) var(--ease-sai) both }
+
+/* Fundo de modal e sheet */
+[data-anim-fundo] { animation: idf-fade-in var(--t-troca) var(--ease-troca) both }
+
+/* ---------- Feedback ---------- */
+[data-anim="erro"]  { animation: idf-balanca var(--t-entra) var(--ease-troca) }  /* campo inválido ao enviar */
+[data-anim="pulso"] { animation: idf-pulso   var(--t-troca) var(--ease-troca) }  /* contador do carrinho/sino mudou */
+
+/* ---------- Carregamento ---------- */
+.idf-spin {
+  width: 1em; height: 1em;
+  border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%;
+  animation: idf-gira 700ms linear infinite;
+}
+.idf-skel {
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--surface-2), var(--line), var(--surface-2));
+  background-size: 200% 100%;
+  animation: idf-brilho 1.3s linear infinite;
+}
+
+/* ---------- Transições de interação ---------- */
+.idf-toque {
+  transition: transform var(--t-toque) var(--ease-troca), filter var(--t-toque) var(--ease-troca),
+              background-color var(--t-toque) var(--ease-troca), border-color var(--t-toque) var(--ease-troca);
+}
+.idf-toque:active { transform: scale(0.97) }
+@media (hover: hover) { .idf-toque:hover { filter: brightness(0.96) } }
+
+/* Lista: itens entram em cascata (até 8; do oitavo em diante entram juntos) */
+[data-anim-lista] > * { animation: idf-sobe var(--t-entra) var(--ease-entra) both }
+[data-anim-lista] > :nth-child(2)   { animation-delay: 40ms }
+[data-anim-lista] > :nth-child(3)   { animation-delay: 80ms }
+[data-anim-lista] > :nth-child(4)   { animation-delay: 120ms }
+[data-anim-lista] > :nth-child(5)   { animation-delay: 160ms }
+[data-anim-lista] > :nth-child(6)   { animation-delay: 200ms }
+[data-anim-lista] > :nth-child(7)   { animation-delay: 240ms }
+[data-anim-lista] > :nth-child(n+8) { animation-delay: 280ms }
+
+/* ---------- Reduzir movimento ----------
+   As durações já vão a 0 em tokens.css. Aqui: laços param, exceto o spinner (indica algo em andamento). */
+@media (prefers-reduced-motion: reduce) {
+  .idf-skel { animation: none }
+  .idf-spin { animation-duration: 1.6s }
+  [data-anim-lista] > * { animation-delay: 0ms !important }
+  .idf-toque:active { transform: none }
+}

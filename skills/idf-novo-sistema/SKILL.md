@@ -29,7 +29,7 @@ Ele imprime o relatório de contraste dos dois temas e grava `src/tema.css`, `pu
 
 Em seguida, no app:
 
-- importe `@idf/ui/tokens.css` e depois `src/tema.css` uma vez, na raiz;
+- importe `@idf/ui/tokens.css`, `@idf/ui/motion.css`, `@idf/ui/marca.css` e por último `src/tema.css`, uma vez, na raiz;
 - ponha `data-produto="<slug de idf.json>"` e, se for expressivo, `data-registro="expressivo"` no elemento raiz;
 - use o shell, os componentes e o painel de erro do `@idf/ui` quando existirem no pacote. Se algo ainda não existir lá, siga `docs/padroes.md` e **não invente um estilo próprio**: avise o usuário de que falta no pacote.
 
@@ -47,7 +47,8 @@ Siga sempre, sem perguntar:
 4. **Dinheiro.** `R$ 1.234,50`, fonte tabular, alinhado à direita. Total, preço e estoque são sempre recalculados no servidor. Cada venda envia uma chave de idempotência. Sem conexão, entra na fila como "Pendente de envio" e só vira "Pago" depois da confirmação.
 5. **Erros.** Todo erro usa o painel único: título e explicação em português dizendo o efeito, código, status, número da requisição e detalhes técnicos. Em sistema **interno** a stack aparece sempre; em sistema **público** ela fica fora da tela e vai para o Sentry. A stack passa pela limpeza (sem e-mail, token, query nem caminho do computador). Nunca engula um erro em silêncio.
 6. **Segurança do front.** Sem token em `localStorage`; sessão por cookie `HttpOnly`. Sem `dangerouslySetInnerHTML`, `eval` nem `innerHTML` com dado do usuário. Links externos com `rel="noopener noreferrer"`. O service worker não cacheia `/api` com dado pessoal ou financeiro e limpa tudo no logout. Ação sensível (estorno, sangria, exclusão) pede senha de novo e registra auditoria.
-7. **PWA.** Toda tela funciona instalada: alvos de toque de 44 px (o token `--ctl` já cuida), nada que dependa de hover, safe areas respeitadas, estados "sem conexão" e "nova versão" tratados.
+7. **Movimento e carregamento.** Só as animações do `motion.css` (`data-anim`, `.idf-toque`), sem `transition` ou `@keyframes` próprios e sem passar de 300 ms; anime só `transform` e `opacity`. Carregando: lista ou tabela usa esqueleto (`.idf-skel`); ação curta, spinner (`.idf-spin`); tela ou painel que demora, a marca `data-marca="tracos"`; abertura do app, `data-marca="monta"` com `.idf-abertura`. **PDV nunca usa a marca nem cascata.** Detalhes em `docs/padroes.md` ("Animações padrão" e "Marca em carregamento").
+8. **PWA.** Toda tela funciona instalada: alvos de toque de 44 px (o token `--ctl` já cuida), nada que dependa de hover, safe areas respeitadas, estados "sem conexão" e "nova versão" tratados.
 8. **Acessibilidade.** Rótulo visível em todo campo, foco visível, `aria-live` em avisos, erro com ícone e texto (nunca só cor), movimento reduzido respeitado.
 
 ## Modo 3 · Revisar um projeto

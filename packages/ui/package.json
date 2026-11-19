@@ -5,6 +5,8 @@
   "type": "module",
   "exports": {
     "./tokens.css": "./src/tokens/tokens.css",
+    "./motion.css": "./src/tokens/motion.css",
+    "./marca.css": "./src/tokens/marca.css",
     "./cor": "./src/tokens/cor.mjs"
   },
   "files": ["src"],
