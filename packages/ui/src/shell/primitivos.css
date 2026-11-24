@@ -1,0 +1,43 @@
+/* @idf/ui · primitivos de conteúdo: cartão, cartões de número, estado vazio, carregando e painel de erro.
+   Só leem os papéis de tokens.css. O painel de erro é o padrão 5 de docs/padroes.md (a regra que monta o texto,
+   o código de suporte e a limpeza da stack está em @idf/core, `montarPainelErro`). */
+
+.idf-cartao { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow); min-width: 0; }
+.idf-cartao__cab { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.idf-cartao__cab h2 { margin: 0; font-size: 15px; font-weight: 700; }
+.idf-cartao__corpo { padding: 16px; }
+.idf-cartao__nota { padding: 10px 16px; border-top: 1px solid var(--line); font-size: 12px; color: var(--soft); }
+
+/* Cartões de número (KPIs): quatro em linha; dois por linha em tela estreita */
+.idf-kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.idf-kpi { min-width: 0; padding: 16px; border-right: 1px solid var(--line); }
+.idf-kpi:last-child { border-right: 0; }
+.idf-kpi b { display: block; font-size: 28px; line-height: 1.1; font-weight: 700; font-variant-numeric: tabular-nums; }
+.idf-kpi span { font-size: 12px; color: var(--soft); }
+@media (max-width: 640px) {
+  .idf-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .idf-kpi:nth-child(2) { border-right: 0; }
+  .idf-kpi:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+}
+
+.idf-vazio { padding: 24px 16px; text-align: center; color: var(--soft); }
+
+/* Carregando: a marca da igreja acesa em sequência (marca.css) e uma frase */
+.idf-carregando { display: grid; justify-items: center; gap: 10px; padding: 32px 16px; color: var(--soft); }
+
+/* Painel de erro: mensagem, o que ainda funciona, código para o suporte e, se a política deixar, detalhes técnicos */
+.idf-erro { display: grid; gap: 8px; justify-items: start; padding: 20px 16px; border-radius: var(--radius-lg); background: var(--danger-soft); color: var(--text); }
+.idf-erro__titulo { margin: 0; font-size: 15px; font-weight: 700; color: var(--danger); }
+.idf-erro__mensagem { margin: 0; }
+.idf-erro__codigo {
+  font-family: ui-monospace, "Cascadia Mono", Menlo, monospace; font-size: 13px;
+  padding: 2px 6px; border-radius: 4px; border: 1px solid var(--line); background: var(--surface);
+}
+.idf-erro__detalhes { width: 100%; font-size: 12px; color: var(--soft); }
+.idf-erro__detalhes summary { cursor: pointer; font-weight: 600; }
+.idf-erro__detalhes pre {
+  margin: 6px 0 0; padding: 8px; overflow-x: auto; max-height: 220px;
+  border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface);
+  font-family: ui-monospace, "Cascadia Mono", Menlo, monospace; font-size: 12px; white-space: pre-wrap; word-break: break-word;
+}
+.idf-erro__acoes { display: flex; flex-wrap: wrap; gap: 8px; }

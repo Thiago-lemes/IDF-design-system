@@ -1,0 +1,239 @@
+/* @idf/ui · estrutura do shell (padrões 1 e 2 de docs/padroes.md). Importe depois de tokens.css e do tema do produto.
+   Sem framework: classes `idf-*` e atributos `data-*`. Quem usa liga o HTML e os controladores de @idf/core.
+
+   <div class="idf-shell" data-recolhido="false">
+     <header class="idf-menu">
+       <a class="idf-menu__marca" href="/">…marca…</a>
+       <nav class="idf-menu__abas" aria-label="Principal">
+         <span class="idf-menu__secao">Ministérios</span>
+         <a class="idf-aba" aria-current="page"><span class="idf-aba__icone">…</span><span class="idf-aba__rotulo">Início</span><span class="idf-aba__selo">3</span></a>
+       </nav>
+       <button class="idf-menu__recolher" aria-pressed="false">…<span class="idf-menu__recolher-rotulo">Recolher menu</span></button>
+     </header>
+     <div class="idf-pilula">  tema · sino · avatar (cada um dentro de .idf-pop)  </div>
+     <main class="idf-conteudo" data-largura="larga">…</main>
+   </div>
+
+   Atributos de item (.idf-aba):
+     data-celular="so"      só aparece na barra do celular
+     data-celular="nunca"   não vai para a barra do celular (continua no menu lateral e no menu da conta)
+   Pontos de corte: 700 px (barra de abas flutuante embaixo) e 1024 px (menu lateral de 236 px, ou 80 px recolhido). */
+
+.idf-shell {
+  --idf-menu-largura: 236px;
+  --idf-hero-on: #ffffff;
+  --idf-hero-on-suave: rgb(255 255 255 / 0.82);
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ---------- menu (topo no celular e no tablet; lateral no computador) ---------- */
+.idf-menu {
+  position: sticky; top: 0; z-index: 5;
+  display: flex; align-items: center; gap: 1.5rem;
+  min-height: 56px; padding: 0.6rem 16px;
+  background: var(--hero); color: var(--idf-hero-on);
+}
+.idf-menu__marca {
+  display: inline-flex; align-items: center; gap: 10px; flex: none;
+  color: inherit; text-decoration: none; font-weight: 800; letter-spacing: -0.02em; font-size: 1.1rem;
+}
+.idf-menu__marca-simbolo { display: block; width: 28px; height: 28px; flex: none; }
+.idf-menu__abas { display: flex; gap: 0.25rem; flex: 1; min-width: 0; }
+.idf-menu__secao { display: none; }
+.idf-menu__recolher { display: none; }
+
+.idf-aba {
+  position: relative;
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  min-height: 44px; padding: 0 0.9rem; border-radius: 99px;
+  color: var(--idf-hero-on-suave); text-decoration: none; font-weight: 600;
+  white-space: nowrap;
+}
+.idf-aba:hover { color: var(--idf-hero-on); background: rgb(255 255 255 / 0.12); }
+.idf-aba[aria-current="page"] { color: var(--hero); background: var(--idf-hero-on); font-weight: 700; }
+.idf-aba__icone { display: inline-grid; place-items: center; flex: none; }
+.idf-aba__icone svg { width: 18px; height: 18px; }
+.idf-aba__rotulo { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.idf-aba__rotulo--curto { display: none; }
+.idf-aba__selo {
+  min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px;
+  display: inline-grid; place-items: center; font-size: 12px; font-weight: 700; line-height: 1;
+  background: var(--idf-hero-on); color: var(--hero);
+}
+.idf-aba[aria-current="page"] .idf-aba__selo { background: var(--hero); color: var(--idf-hero-on); }
+/* Ponto de estado do ministério (conectado ou sem resposta). O texto acompanha pelo title e pelo aria-label. */
+.idf-aba__ponto {
+  width: 8px; height: 8px; border-radius: 50%; flex: none;
+  background: var(--ok); box-shadow: 0 0 0 2px var(--hero);
+}
+.idf-aba__ponto[data-estado="fora"] { background: var(--danger); }
+/* Logo do ministério: PNG branco sobre transparente, em quadrado colorido. */
+.idf-logo {
+  display: inline-grid; place-items: center; flex: none;
+  width: 24px; height: 24px; border-radius: 7px;
+  background: rgb(255 255 255 / 0.16);
+}
+.idf-logo img { display: block; width: 80%; height: 80%; object-fit: contain; }
+.idf-logo[data-tam="gr"] { width: 52px; height: 52px; border-radius: 13px; background: var(--hero); }
+.idf-logo[data-tam="md"] { width: 28px; height: 28px; background: var(--hero); }
+.idf-logo[data-tam="pq"] { width: 22px; height: 22px; border-radius: 6px; background: var(--hero); }
+
+.idf-conteudo { max-width: 1080px; margin: 0 auto; padding: 1.75rem 16px 4rem; }
+.idf-conteudo[data-largura="larga"] { max-width: 1180px; }
+.idf-conteudo[data-largura="ampla"] { max-width: none; }
+
+/* ---------- pílula do canto superior direito: tema, sino e avatar ---------- */
+.idf-pilula {
+  position: fixed; top: 6px; right: 12px; z-index: 6;
+  display: flex; align-items: center; gap: 0.15rem; padding: 0 4px;
+  color: var(--idf-hero-on);
+}
+.idf-pop { position: relative; }
+.idf-botao-icone {
+  position: relative; display: inline-grid; place-items: center;
+  min-width: 44px; min-height: 44px; padding: 0; border: 0; border-radius: 50%;
+  background: none; color: inherit; cursor: pointer;
+}
+.idf-botao-icone:hover { background: rgb(255 255 255 / 0.14); }
+.idf-botao-icone svg { width: 20px; height: 20px; }
+.idf-botao-icone__contador {
+  position: absolute; top: 3px; right: 3px;
+  min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px;
+  display: grid; place-items: center; font-size: 11px; font-weight: 700; line-height: 1;
+  background: var(--danger); color: var(--idf-hero-on);
+}
+.idf-botao-avatar {
+  display: inline-grid; place-items: center; min-width: 48px; min-height: 48px; padding: 0;
+  border: 0; border-radius: 50%; background: none; cursor: pointer;
+}
+.idf-botao-avatar:hover .idf-avatar, .idf-botao-avatar[aria-expanded="true"] .idf-avatar { box-shadow: 0 0 0 3px var(--brand-line, var(--brand)); }
+.idf-avatar {
+  display: inline-grid; place-items: center; flex: none;
+  width: 36px; height: 36px; border-radius: 12px;
+  background: var(--brand-soft); color: var(--brand-text);
+  font-weight: 800; font-size: 0.9rem; letter-spacing: -0.01em; line-height: 1; user-select: none;
+}
+.idf-avatar[data-tam="gr"] { width: 44px; height: 44px; border-radius: 14px; font-size: 1.05rem; }
+.idf-avatar[data-tom="neutro"] { background: var(--surface-2); color: var(--soft); }
+
+/* ---------- painel que abre sob o botão (menu da conta, avisos) ---------- */
+.idf-popover {
+  position: absolute; top: calc(100% + 0.5rem); right: 0; z-index: 20;
+  width: min(320px, calc(100vw - 32px)); padding: 0.5rem;
+  background: var(--surface); color: var(--text);
+  border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow);
+  transform-origin: top right;
+}
+.idf-popover[hidden] { display: none; }
+.idf-popover__titulo { margin: 0; padding: 0.5rem 0.6rem 0.25rem; font-size: 13px; font-weight: 600; color: var(--soft); }
+.idf-popover__quem { display: grid; gap: 2px; padding: 0.6rem 0.6rem 0.85rem; border-bottom: 1px solid var(--line); margin-bottom: 0.35rem; }
+.idf-popover__quem strong { font-weight: 800; }
+.idf-popover__quem span { font-size: 13px; color: var(--soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.idf-popover__item {
+  display: flex; align-items: center; gap: 0.75rem; width: 100%; min-height: 44px; padding: 0.4rem 0.6rem;
+  border: 0; border-radius: var(--radius); background: none; color: var(--text); font: inherit; font-weight: 600;
+  text-align: left; text-decoration: none; cursor: pointer;
+}
+.idf-popover__item:hover, .idf-popover__item:focus-visible { background: var(--surface-2); }
+.idf-popover__item svg { width: 18px; height: 18px; color: var(--soft); flex: none; }
+.idf-popover__item[data-celular="so"] { display: none; }
+.idf-popover__vazio { padding: 1.25rem 0.6rem; text-align: center; color: var(--soft); }
+.idf-popover hr { border: 0; border-top: 1px solid var(--line); margin: 0.35rem 0; }
+/* Três opções em pílula (Aparelho, Claro, Escuro) */
+.idf-seletor-tema {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.25rem; padding: 0.25rem;
+  margin: 0; border: 0; background: var(--surface-2); border-radius: var(--radius);
+}
+.idf-seletor-tema button {
+  min-height: 32px; border: 0; border-radius: 6px; background: transparent; color: var(--soft);
+  font: inherit; font-weight: 600; cursor: pointer;
+}
+.idf-seletor-tema button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+
+/* ---------- tablet (700 a 1023 px): topo com as abas em linha ---------- */
+@media (min-width: 700px) and (max-width: 1023px) {
+  .idf-menu { padding-right: 190px; }
+  .idf-aba[data-celular="so"] { display: none; }
+}
+
+/* ---------- celular (até 699 px): topo só com a marca; as abas viram a barra flutuante ---------- */
+@media (max-width: 699px) {
+  .idf-menu { justify-content: space-between; padding: 0.5rem 16px; }
+  .idf-menu__marca-texto { display: none; }
+  .idf-menu__abas {
+    position: fixed; left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom)); z-index: 5;
+    justify-content: space-around; gap: 0.15rem; padding: 0.3rem;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 22px; box-shadow: var(--shadow);
+  }
+  .idf-aba {
+    flex: 1; min-width: 0; flex-direction: column; justify-content: center; gap: 0.15rem;
+    min-height: 56px; padding: 0.35rem 0; border-radius: var(--radius);
+    color: var(--soft); font-size: 0.75rem;
+  }
+  .idf-aba:hover { color: var(--text); background: var(--surface-2); }
+  .idf-aba[aria-current="page"] { background: var(--brand); color: var(--brand-on); }
+  .idf-aba__icone svg { width: 22px; height: 22px; }
+  .idf-aba[aria-current="page"] .idf-aba__icone svg { stroke-width: 2.4; }
+  .idf-aba__rotulo--longo { display: none; }
+  .idf-aba__rotulo--curto { display: inline; }
+  .idf-aba[data-celular="nunca"] { display: none; }
+  .idf-aba__selo { position: absolute; top: 2px; right: calc(50% - 26px); background: var(--danger); color: var(--idf-hero-on); }
+  .idf-aba[aria-current="page"] .idf-aba__selo { background: var(--danger); color: var(--idf-hero-on); }
+  .idf-aba__ponto { display: none; }
+  .idf-logo { background: var(--hero); }
+  .idf-popover__item[data-celular="so"] { display: flex; }
+  .idf-conteudo { padding: 1.25rem 16px calc(7rem + env(safe-area-inset-bottom)); }
+}
+
+/* ---------- computador (1024 px ou mais): menu lateral ---------- */
+@media (min-width: 1024px) {
+  .idf-shell { padding-left: var(--idf-menu-largura); }
+  .idf-shell .idf-conteudo { padding-top: 4.5rem; }
+  .idf-menu {
+    position: fixed; inset: 0 auto 0 0; width: var(--idf-menu-largura);
+    flex-direction: column; align-items: stretch; gap: 1.5rem; padding: 22px 14px 16px; overflow-y: auto;
+  }
+  .idf-menu__marca { padding: 0 0.6rem; }
+  .idf-menu__abas { flex: 1 1 auto; flex-direction: column; gap: 0.2rem; min-height: 0; }
+  .idf-aba { min-height: 46px; padding: 0 0.95rem; border-radius: var(--radius); }
+  .idf-aba__rotulo { flex: 1; }
+  .idf-aba[data-celular="so"] { display: none; }
+  .idf-menu__secao {
+    display: block; padding: 1rem 0.95rem 0.25rem;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: rgb(255 255 255 / 0.66);
+  }
+  .idf-menu__recolher {
+    display: flex; align-items: center; gap: 0.7rem; width: 100%; min-height: 46px; padding: 0 0.95rem;
+    border: 0; border-radius: var(--radius); background: none; cursor: pointer;
+    color: var(--idf-hero-on-suave); font: inherit; font-weight: 600;
+  }
+  .idf-menu__recolher:hover { background: rgb(255 255 255 / 0.12); color: var(--idf-hero-on); }
+  .idf-menu__recolher svg { width: 20px; height: 20px; flex: none; }
+  .idf-pilula {
+    top: 12px; right: 20px; padding: 4px 6px; color: var(--text);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 99px; box-shadow: var(--shadow);
+  }
+  .idf-pilula .idf-botao-icone:hover { background: var(--surface-2); }
+
+  /* recolhido: só os ícones; o nome continua para o leitor de tela e na dica */
+  .idf-shell[data-recolhido="true"] { padding-left: 80px; }
+  .idf-shell[data-recolhido="true"] .idf-menu { width: 80px; align-items: center; padding: 22px 10px 16px; }
+  .idf-shell[data-recolhido="true"] .idf-menu__marca { padding: 0; }
+  .idf-shell[data-recolhido="true"] .idf-menu__marca-texto,
+  .idf-shell[data-recolhido="true"] .idf-menu__recolher-rotulo,
+  .idf-shell[data-recolhido="true"] .idf-menu__secao,
+  .idf-shell[data-recolhido="true"] .idf-aba__selo { display: none; }
+  .idf-shell[data-recolhido="true"] .idf-menu__abas { align-items: center; }
+  .idf-shell[data-recolhido="true"] .idf-aba { justify-content: center; width: 48px; padding: 0; }
+  .idf-shell[data-recolhido="true"] .idf-aba__rotulo {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+  }
+  .idf-shell[data-recolhido="true"] .idf-aba__ponto { position: absolute; top: 8px; right: 6px; }
+  .idf-shell[data-recolhido="true"] .idf-menu__recolher { width: 48px; padding: 0; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .idf-popover:not([hidden]) { animation: idf-fade-in var(--t-troca, 200ms) var(--ease-entra, ease-out); }
+}
