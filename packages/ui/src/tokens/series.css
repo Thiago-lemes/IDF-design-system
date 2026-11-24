@@ -1,0 +1,39 @@
+/* @idf/ui · paleta de categorias dos gráficos e da escala (--serie-1 a --serie-6).
+   Uma cor por categoria (turma, modelo de culto, origem da entrada), a mesma em todas as telas, atribuída
+   por posição na ordem em que o sistema de origem entrega as categorias; depois da sexta, recomeça.
+   Valores validados com o validador da skill `dataviz` (banda de luminosidade, croma, separação para daltonismo
+   entre vizinhas, piso de visão normal) e com contraste de pelo menos 3:1 sobre a superfície do tema
+   (conferido em test/series.test.mjs). A cor nunca é a única informação: sempre há nome, rótulo ou valor.
+
+   --serie-N      preenchimento de gráfico (barras, colunas, faixas que carregam informação)
+   --serie-N-tom  tom original do Pastinho, para tinta suave e faixa da escala (onde o nome sempre acompanha):
+                  background: color-mix(in srgb, var(--serie-N-tom) 14%, var(--surface))
+   Ordem: 1 amarelo, 2 coral, 3 lilás, 4 azul, 5 verde, 6 rosa. Importe depois de tokens.css. */
+
+:root {
+  --serie-1: #a08725;  --serie-1-tom: #ffc83d;
+  --serie-2: #9c4745;  --serie-2-tom: #ff7a59;
+  --serie-3: #7e90da;  --serie-3-tom: #8f7ee0;
+  --serie-4: #3e5bd5;  --serie-4-tom: #4f9de0;
+  --serie-5: #4ba711;  --serie-5-tom: #2ec27e;
+  --serie-6: #dd3d90;  --serie-6-tom: #c9729f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema="claro"]) {
+    --serie-1: #b38816;
+    --serie-2: #c54256;
+    --serie-3: #974ebd;
+    --serie-4: #0696ec;
+    --serie-5: #5a9e43;
+    --serie-6: #c13376;
+  }
+}
+:root[data-tema="escuro"] {
+  --serie-1: #b38816;
+  --serie-2: #c54256;
+  --serie-3: #974ebd;
+  --serie-4: #0696ec;
+  --serie-5: #5a9e43;
+  --serie-6: #c13376;
+}

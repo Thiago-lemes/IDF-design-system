@@ -7,9 +7,14 @@
     "./tokens.css": "./src/tokens/tokens.css",
     "./motion.css": "./src/tokens/motion.css",
     "./marca.css": "./src/tokens/marca.css",
-    "./cor": "./src/tokens/cor.mjs"
+    "./cor": "./src/tokens/cor.mjs",
+    "./series.css": "./src/tokens/series.css",
+    "./shell.css": "./src/shell/shell.css",
+    "./primitivos.css": "./src/shell/primitivos.css"
   },
-  "files": ["src"],
+  "files": [
+    "src"
+  ],
   "scripts": {
     "test": "node --test test/*.test.mjs"
   },
