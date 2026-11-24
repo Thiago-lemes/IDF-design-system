@@ -72,7 +72,8 @@ O gerador devolve o visual completo da Lojinha, com o verde aplicado em botões,
 
 | Pasta | O que é | Situação |
 | --- | --- | --- |
-| `packages/ui` | `@idf/ui`: os estilos (tokens em CSS), as animações padrão (`motion.css`), a marca em carregamento (`marca.css`) e o cálculo automático de cor com contraste AA | Tokens, animações, marca e cor prontos, com testes. **Falta:** componentes React, menu/shell e painel de erro |
+| `packages/ui` | `@idf/ui`: tokens em CSS, animações (`motion.css`), marca em carregamento (`marca.css`), cálculo automático de cor com contraste AA, **o CSS do shell** (`shell.css`: menu lateral, topo com tema, sino e avatar, barra de abas no celular), **os primitivos** (`primitivos.css`: cartão, indicadores, estado vazio, carregando, painel de erro) e a **paleta de categorias** (`series.css`: `--serie-1` a `--serie-6`) | Pronto, com testes. **Falta:** botão, campos, tabela, selo, alerta, aviso rápido e diálogo (hoje vivem no CSS do hub e do Pastinho) |
+| `packages/core` | `@idf/core`: TypeScript puro, sem framework. Cliente da API (cookie, cabeçalho anti-CSRF, erros no formato Problem Details), painel de erro (remove dado sensível e gera o código de suporte), menu recolhido, tema claro/escuro e o estado que liga tudo a React, Vue ou JS puro | Pronto, com testes. Em uso no hub; o Pastinho ainda não migrou |
 | `packages/create-idf-app` | O gerador: recebe nome + cor e entrega `tema.css`, `manifest.webmanifest` e `idf.json` | Pronto, com testes. **Falta:** gerar o projeto inteiro (menu, service worker, ícones) |
 | `skills/idf-novo-sistema` | Skill para criar sistema novo, escrever telas e revisar | Pronta (v0.1) |
 | `skills/idf-adotar-arquitetura` | Skill que adapta um projeto **que já existe** ao padrão, por fases (começa com um diagnóstico). Leva junto `references/arquitetura-front.md` | Pronta (v0.1) |
@@ -128,13 +129,15 @@ O que cada parte significa:
 
 ## Próximos passos
 
-Em ordem de prioridade:
+O que já foi feito: o shell (menu lateral, topo, barra de abas), o painel de erro, os primitivos, a paleta de categorias e o `@idf/core`, usados pelo hub da secretaria. Em ordem de prioridade:
 
-1. **Componentes prontos:** extrair do Pastinho (`web/src/estilos.css`, `componentes/`) botão, campos, alertas, avisos rápidos (toast), diálogo, tabela, selo e indicadores (KPI) para o `@idf/ui`.
-2. **Estrutura da tela:** menu lateral, topo com avatar e avisos, barra inferior no celular e o painel de erro (que remove dados sensíveis antes de mostrar detalhes técnicos).
-3. **Venda e uso offline:** tela de venda e o suporte a PWA (instalação, funcionamento sem internet, fila de envio).
-4. **Guardas automáticas:** regras que barram cor solta e HTML inseguro, e verificação de segurança das dependências a cada alteração (CI com `npm audit`).
-5. **Gerador completo e prova real:** gerar a Lojinha de verdade, de ponta a ponta.
+1. **Componentes prontos que faltam:** botão, campos, alertas, aviso rápido (toast), diálogo, tabela, selo. Hoje estão no CSS do hub e do Pastinho (`web/src/estilos.css`, `componentes/`); extrair para o `@idf/ui`.
+2. **Migrar o Pastinho** para consumir o shell, o `@idf/core` e as séries, em um passo separado, para não misturar mudanças nos dois sistemas.
+3. **`@idf/react`:** o adaptador React fino hoje mora no hub (`web/src/compartilhado/shell/`). Só vira pacote quando houver um segundo sistema em React.
+4. **Venda e uso offline:** tela de venda e o suporte a PWA (instalação, funcionamento sem internet, fila de envio).
+5. **Guardas automáticas:** o hub já barra cor solta, HTML cru e arquivo grande no ESLint; levar essas regras para um pacote comum e acrescentar `npm audit` no CI.
+6. **Como os sistemas consomem os pacotes:** hoje por caminho local (`file:`). Decidir entre registro privado, workspace ou submódulo.
+7. **Gerador completo e prova real:** gerar um sistema de ponta a ponta (menu, service worker, ícones).
 
 ## Quer saber mais?
 

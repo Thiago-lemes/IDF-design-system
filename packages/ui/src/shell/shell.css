@@ -76,6 +76,8 @@
   background: rgb(255 255 255 / 0.16);
 }
 .idf-logo img { display: block; width: 80%; height: 80%; object-fit: contain; }
+/* No item selecionado o menu fica claro: a logo (branca) precisa do quadrado sólido para não sumir. */
+.idf-aba[aria-current="page"] .idf-logo { background: var(--hero); }
 .idf-logo[data-tam="gr"] { width: 52px; height: 52px; border-radius: 13px; background: var(--hero); }
 .idf-logo[data-tam="md"] { width: 28px; height: 28px; background: var(--hero); }
 .idf-logo[data-tam="pq"] { width: 22px; height: 22px; border-radius: 6px; background: var(--hero); }
