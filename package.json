@@ -3,9 +3,13 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
-    "test": "node --test packages/ui/test/*.test.mjs packages/create-idf-app/test/*.test.mjs"
+    "test": "node --test packages/ui/test/*.test.mjs packages/create-idf-app/test/*.test.mjs && npm test -w @idf/core"
   },
-  "engines": { "node": ">=20" }
+  "engines": {
+    "node": ">=20"
+  }
 }

@@ -72,3 +72,13 @@ Remover query string, e-mails, tokens (`Bearer`, `token=`, `sessao=`) e caminhos
 ## PWA
 
 Todo sistema é instalável (`manifest.webmanifest` com ícones 192, 512 e maskable, `display: standalone`, `theme_color` = `--hero`). Estados tratados: convite de instalação (Android e iPhone), sem conexão (fila com "Pendente de envio") e nova versão disponível. Dinheiro nunca é dado como pago antes da confirmação do servidor.
+
+## Paleta de categorias (`--serie-1` a `--serie-6`)
+
+Arquivo: `@idf/ui/series.css` (depois de `tokens.css`). Uma cor por categoria (turma, modelo de culto, origem), a mesma em todas as telas, atribuída por posição na ordem em que o sistema de origem entrega as categorias; depois da sexta, recomeça. Cada token tem valor para o tema claro e para o escuro, validado com o validador da skill `dataviz` (luminosidade, croma, separação para daltonismo entre vizinhas) e com 3:1 sobre a superfície (`test/series.test.mjs`). `--serie-N-tom` guarda o tom original do Pastinho, para tinta suave (`color-mix(in srgb, var(--serie-N-tom) 14%, var(--surface))`) e faixa, onde o nome sempre acompanha. Série única (uma medida ao longo do tempo) usa `--brand`. A cor nunca é a única informação.
+
+## Shell e núcleo sem framework
+
+- `@idf/ui/shell.css`: o contrato em classes `idf-*` e atributos `data-*` dos padrões 1 e 2 (menu lateral de 236 px, 80 px recolhido, pílula com tema, sino e avatar, barra de abas flutuante no celular; cortes em 700 e 1024 px). O comentário no topo do arquivo mostra o HTML.
+- `@idf/ui/primitivos.css`: `idf-cartao`, `idf-kpis`, `idf-vazio`, `idf-carregando` e o painel de erro `idf-erro`.
+- `@idf/core` (TypeScript puro, sem DOM obrigatório): `criarCliente` (cookie, cabeçalho anti-CSRF configurável, Problem Details para `ErroApp`, nunca guarda token), `montarPainelErro` e `limparStack` (regra do padrão 5), `criarMenuRecolhido`, `criarTema` e `criarEstado` (a ponte com React, Vue ou JS puro é `assinar` + `ler`).
