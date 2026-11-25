@@ -74,17 +74,28 @@ O gerador devolve o visual completo da Lojinha, com o verde aplicado em botões,
 | --- | --- | --- |
 | `packages/ui` | `@idf/ui`: tokens em CSS, animações (`motion.css`), marca em carregamento (`marca.css`), cálculo automático de cor com contraste AA, **o CSS do shell** (`shell.css`: menu lateral, topo com tema, sino e avatar, barra de abas no celular), **os primitivos** (`primitivos.css`: cartão, indicadores, estado vazio, carregando, painel de erro) e a **paleta de categorias** (`series.css`: `--serie-1` a `--serie-6`) | Pronto, com testes. **Falta:** botão, campos, tabela, selo, alerta, aviso rápido e diálogo (hoje vivem no CSS do hub e do Pastinho) |
 | `packages/core` | `@idf/core`: TypeScript puro, sem framework. Cliente da API (cookie, cabeçalho anti-CSRF, erros no formato Problem Details), painel de erro (remove dado sensível e gera o código de suporte), menu recolhido, tema claro/escuro e o estado que liga tudo a React, Vue ou JS puro | Pronto, com testes. Em uso no hub; o Pastinho ainda não migrou |
-| `packages/create-idf-app` | O gerador: recebe nome + cor e entrega `tema.css`, `manifest.webmanifest` e `idf.json` | Pronto, com testes. **Falta:** gerar o projeto inteiro (menu, service worker, ícones) |
+| `packages/create-idf-app` | O gerador (`idf-app.mjs`): recebe nome + cor e entrega `tema.css`, `manifest.webmanifest` e `idf.json`. E o **sincronizador** (`idf-sync.mjs`): copia para o projeto o CSS e o núcleo e confere se a cópia está em dia | Pronto, com testes. **Falta:** gerar o projeto inteiro (menu, service worker, ícones) |
 | `skills/idf-novo-sistema` | Skill para criar sistema novo, escrever telas e revisar | Pronta (v0.1) |
 | `skills/idf-adotar-arquitetura` | Skill que adapta um projeto **que já existe** ao padrão, por fases (começa com um diagnóstico). Leva junto `references/arquitetura-front.md` | Pronta (v0.1) |
 | `.claude-plugin` | Empacota as skills como plugin | Pronto |
 | `docs/padroes.md` | Os cinco padrões, a arquitetura de tokens, as animações e a marca em carregamento, em detalhe | Pronto |
 | `docs/visual/` | Páginas HTML autônomas para o desenvolvedor ver e mexer (conceito, componentes, padrões, animações, marca) | Prontas. São demonstrações: ainda não são o código real do `@idf/ui` |
 
+### Como um sistema usa o design system
+
+**O design system é um guia, não uma dependência.** Nenhum sistema da IDF importa pacotes daqui para compilar. Os nomes `@idf/ui` e `@idf/core` são só os nomes das pastas desta casa, não pacotes para instalar.
+
+O que acontece, em português simples: quem cria ou atualiza um sistema **consulta** o design system (pelas skills) e leva uma **cópia** dos arquivos que precisa para dentro do projeto, na pasta `src/idf/`. Daí em diante o projeto anda sozinho e compila em qualquer máquina, sem este repositório por perto. É como copiar a receita para o seu caderno.
+
+- **A cópia é só leitura.** Cada arquivo tem um cabeçalho dizendo de onde veio, e o `idf-lock.json` guarda a impressão digital de cada um. Para mudar o menu, o tema ou as cores, muda-se **aqui** e sincroniza-se de novo.
+- **Atualizar é um comando** (`idf-sync.mjs`) ou uma frase para a skill ("atualize o design system neste projeto"). Ele mostra o que mudou, avisa se alguém editou a cópia à mão e não sobrescreve sem permissão.
+- **O custo desse modelo é o desvio:** a cópia é uma foto de um momento. Se ninguém sincronizar, o projeto envelhece. Por isso existe o `--verificar`.
+
 ### Qual skill escolher?
 
 - **Vou criar um sistema do zero** → `idf-novo-sistema`
 - **Já tenho um sistema e quero alinhá-lo ao padrão** → `idf-adotar-arquitetura`
+- **O design system mudou e quero atualizar um projeto** → `idf-novo-sistema` (Modo 4, sincronizar)
 
 ### Como usar
 
@@ -112,6 +123,18 @@ O que cada parte significa:
 | `--publico` *(opcional)* | Use quando o sistema for para o público em geral: botões e letras maiores, visual mais acolhedor. Sem ele, o visual é o "de equipe", mais compacto |
 | `--simular` *(opcional)* | Só mostra o relatório de contraste, sem criar nenhum arquivo |
 
+**3. Levar o design system para um projeto (e atualizar depois):**
+
+```bash
+# copia o CSS e o núcleo para src/idf e grava o idf-lock.json
+node packages/create-idf-app/bin/idf-sync.mjs --destino ../meu-app/src/idf
+
+# só confere: está em dia? alguém editou a cópia? (sai com código 1 se algo divergir)
+node packages/create-idf-app/bin/idf-sync.mjs --destino ../meu-app/src/idf --verificar
+```
+
+`--forcar` sobrescreve um arquivo que foi editado à mão no projeto; use só depois de decidir o que fazer com a edição.
+
 ### Como instalar a skill
 
 **Opção recomendada: plugin do Claude Code** (o repositório já está publicado):
@@ -132,11 +155,11 @@ O que cada parte significa:
 O que já foi feito: o shell (menu lateral, topo, barra de abas), o painel de erro, os primitivos, a paleta de categorias e o `@idf/core`, usados pelo hub da secretaria. Em ordem de prioridade:
 
 1. **Componentes prontos que faltam:** botão, campos, alertas, aviso rápido (toast), diálogo, tabela, selo. Hoje estão no CSS do hub e do Pastinho (`web/src/estilos.css`, `componentes/`); extrair para o `@idf/ui`.
-2. **Migrar o Pastinho** para consumir o shell, o `@idf/core` e as séries, em um passo separado, para não misturar mudanças nos dois sistemas.
+2. **Migrar o Pastinho** para usar a cópia sincronizada do shell, do núcleo e das séries (`idf-sync.mjs`), em um passo separado, para não misturar mudanças nos dois sistemas.
 3. **`@idf/react`:** o adaptador React fino hoje mora no hub (`web/src/compartilhado/shell/`). Só vira pacote quando houver um segundo sistema em React.
 4. **Venda e uso offline:** tela de venda e o suporte a PWA (instalação, funcionamento sem internet, fila de envio).
 5. **Guardas automáticas:** o hub já barra cor solta, HTML cru e arquivo grande no ESLint; levar essas regras para um pacote comum e acrescentar `npm audit` no CI.
-6. **Como os sistemas consomem os pacotes:** hoje por caminho local (`file:`). Decidir entre registro privado, workspace ou submódulo.
+6. **Como os sistemas recebem o design system:** decidido. Nenhum sistema depende dele; cada um tem uma cópia em `src/idf`, mantida pelo `idf-sync.mjs` (ver "Como um sistema usa o design system").
 7. **Gerador completo e prova real:** gerar um sistema de ponta a ponta (menu, service worker, ícones).
 
 ## Quer saber mais?

@@ -32,6 +32,8 @@ compartilhado/              componentes do projeto reutilizáveis (framework)
 
 Nenhum arquivo importa nome interno (começado por `_`) de outro módulo. Ciclos são proibidos.
 
+**Como `@idf/ui` e `@idf/core` chegam ao projeto.** Não são pacotes para instalar: são pastas do design system. O projeto recebe uma **cópia** em `src/idf/` (`css/` e `core/`), feita e mantida pelo `idf-sync.mjs`, e importa dela por caminho relativo. A cópia é só leitura: muda-se no design system e sincroniza-se. Onde esta tabela diz `@idf/ui` e `@idf/core`, leia `src/idf/css` e `src/idf/core`.
+
 ## Pastas de um projeto
 
 ```

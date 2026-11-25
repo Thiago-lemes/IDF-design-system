@@ -1,6 +1,6 @@
 ---
 name: idf-novo-sistema
-description: Cria um sistema novo da Igreja IDF no padrão do design system, ou escreve e revisa telas de um sistema IDF. Use quando o usuário pedir para criar um sistema, app, módulo ou tela da IDF (lojinha, PDV, admin, qualquer outro), ou para revisar se um projeto segue o padrão visual, de segurança e de erros.
+description: Cria um sistema novo da Igreja IDF no padrão do design system, escreve e revisa telas de um sistema IDF, ou sincroniza a cópia do design system que o projeto carrega. Use quando o usuário pedir para criar um sistema, app, módulo ou tela da IDF (lojinha, PDV, admin, qualquer outro), para revisar se um projeto segue o padrão visual, de segurança e de erros, ou para atualizar o design system num projeto.
 ---
 
 # Sistema IDF no padrão
@@ -27,11 +27,22 @@ node "${CLAUDE_PLUGIN_ROOT}/packages/create-idf-app/bin/idf-app.mjs" \
 
 Ele imprime o relatório de contraste dos dois temas e grava `src/tema.css`, `public/manifest.webmanifest` e `idf.json`. Se algum item sair como `ERRO`, mostre ao usuário e não prossiga sem resolver. Se a cor for inválida, o gerador recusa com mensagem clara.
 
+Depois **traga o design system para dentro do projeto**. O projeto não depende dele para compilar: fica com uma **cópia** dos arquivos que usa, em `src/idf/`.
+
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/packages/create-idf-app/bin/idf-sync.mjs" --destino src/idf
+```
+
+Isso copia o CSS (`src/idf/css/`: tokens, animações, marca, cores de categoria, shell e primitivos) e o núcleo em TypeScript (`src/idf/core/`: cliente da API, painel de erro, menu recolhido, tema), com um cabeçalho em cada arquivo, e grava `src/idf/idf-lock.json` com a impressão digital de cada um.
+
 Em seguida, no app:
 
-- importe `@idf/ui/tokens.css`, `@idf/ui/motion.css`, `@idf/ui/marca.css` e por último `src/tema.css`, uma vez, na raiz;
+- acrescente ao `package.json` os atalhos `idf:sincronizar` e `idf:verificar`, que chamam o `idf-sync.mjs` do design system (ajuste o caminho para onde ele está na máquina; sem `--verificar` copia, com ele só confere);
+- importe o CSS de `src/idf/css/` uma vez, na raiz, **nesta ordem**: `tokens.css`, `motion.css`, `marca.css`, `series.css`, `shell.css`, `primitivos.css` e por último `src/tema.css`;
+- importe o TypeScript de `src/idf/core/` por caminho relativo. Não existe pacote `@idf/*` para instalar: os nomes `@idf/ui` e `@idf/core` são só pastas do design system;
 - ponha `data-produto="<slug de idf.json>"` e, se for expressivo, `data-registro="expressivo"` no elemento raiz;
-- use o shell, os componentes e o painel de erro do `@idf/ui` quando existirem no pacote. Se algo ainda não existir lá, siga `docs/padroes.md` e **não invente um estilo próprio**: avise o usuário de que falta no pacote.
+- use o CSS do shell e dos primitivos e o painel de erro que vêm na cópia. O adaptador do framework (o componente que liga o CSS ao núcleo) é do projeto: fino, sem regra de negócio. Se algo ainda não existir no design system, siga `docs/padroes.md` e **não invente um estilo próprio**: avise o usuário de que falta no design system;
+- tire `src/idf/` do lint e do formatador (não é código do projeto) e acrescente um teste que compare os arquivos com o `idf-lock.json`, para ninguém editar a cópia à mão (o hub da secretaria tem um exemplo em `web/src/idf.test.ts`).
 
 ## Estrutura do projeto
 
@@ -60,12 +71,22 @@ Percorra os itens acima no código e responda com uma lista curta: o que está f
 - `catch` vazio ou que só faz `console.log`;
 - chamadas de dinheiro que confiam no total vindo do front;
 - uso de `/api` com dado pessoal em cache do service worker;
-- navegação própria no lugar do shell.
+- navegação própria no lugar do shell;
+- cópia do design system fora de dia ou editada à mão (rode o `idf-sync.mjs --verificar`).
 
 Não corrija sem o usuário pedir. Relate primeiro.
+
+## Modo 4 · Sincronizar com o design system
+
+Use quando o design system mudou, ou quando o usuário pedir para atualizar o design system no projeto.
+
+1. Confira: `node "${CLAUDE_PLUGIN_ROOT}/packages/create-idf-app/bin/idf-sync.mjs" --destino src/idf --verificar`. Ele lista o que está **desatualizado** (o design system mudou), **editado no projeto** (alguém mexeu à mão) ou **faltando**.
+2. Mostre a lista ao usuário e explique cada item. Se houver arquivo **editado no projeto**, pergunte o que fazer: a mudança deve ir para o design system (leve-a para lá primeiro) ou ser descartada. Nunca use `--forcar` sem essa resposta.
+3. Sincronize (o mesmo comando, sem `--verificar`). Rode lint, testes e build do projeto e mostre o que mudou (`git diff --stat src/idf`).
+4. Se a mudança do design system quebrou algo no projeto (um nome de classe, um parâmetro do núcleo), corrija **no projeto**, nunca na cópia.
 
 ## O que NÃO fazer
 
 - Não pergunte fonte, raio, espaçamento, tema escuro ou estrutura de menu.
-- Não copie código do `@idf/ui` para o projeto: importe o pacote, para as correções chegarem a todos.
+- Não edite os arquivos de `src/idf/`: são cópia do design system. Para mudar o menu, o tema ou as cores, mude no design system e sincronize (Modo 4). Não crie um estilo ou controlador próprio no lugar do que o design system já entrega.
 - Não suba nada para repositórios remotos nem faça commit sem o usuário pedir.

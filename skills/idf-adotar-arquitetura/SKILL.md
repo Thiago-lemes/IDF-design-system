@@ -42,17 +42,17 @@ Não altere nenhum arquivo. Entregue um relatório curto com:
 ## Fase 1 · Fundação (sem tocar nas telas)
 
 - Se o projeto ainda não tem tema, pergunte **só** o nome e sobre o que é o sistema, e a cor, e gere com `node "${CLAUDE_PLUGIN_ROOT}/packages/create-idf-app/bin/idf-app.mjs" --nome ... --sobre ... --cor ... --saida .`. Se já tem tokens, crie **aliases** para os nomes atuais em vez de renomear.
+- Traga o design system para dentro do projeto, **como cópia** (o projeto não depende dele para compilar): `node "${CLAUDE_PLUGIN_ROOT}/packages/create-idf-app/bin/idf-sync.mjs" --destino src/idf`. Isso cria `src/idf/css/`, `src/idf/core/` e `src/idf/idf-lock.json`. Tire `src/idf/` do lint e do formatador.
 - Garanta `data-produto` e `data-registro` no elemento raiz e o tema escuro funcionando.
 - Confira o manifest e o `theme-color`.
 
 ## Fase 2 · Núcleo
 
-Crie ou consolide, em TypeScript puro e com teste:
+O núcleo **já vem do design system**, na cópia `src/idf/core/` (Fase 1): cliente único da API (cabeçalho anti-CSRF, `credentials`, sem token, Problem Details convertido em `ErroApp`), `erros` (`limparStack` e o painel de erro), o menu recolhido, o tema e o estado observável (`ler`, `assinar`). **Use esses, não recrie.** Só crie no projeto, em TypeScript puro e com teste, o que o design system não traz:
 
-- `api`: cliente único, cabeçalho anti-CSRF, `credentials`, sem guardar token, Problem Details convertido em `ErroApp` (título, mensagem, código, status, número da requisição).
-- `erros`: `ErroApp`, `limparStack` (remove e-mail, token, query string e caminho do computador; no máximo 12 linhas) e `montarDetalhes`.
-- `formatos` e `dinheiro`: `R$ 1.234,50` e valores em centavos inteiros (soma, troco, rateio).
-- estado observável (`ler`, `definir`, `assinar`) e a ponte fina para o framework do projeto.
+- `formatos` e `dinheiro`: `R$ 1.234,50` e valores em centavos inteiros (soma, troco, rateio);
+- a fila de envio e as regras de cada funcionalidade;
+- a ponte fina para o framework do projeto (um hook, um composable), sem regra de negócio.
 
 Troque os usos antigos **um arquivo por vez**.
 
@@ -68,7 +68,7 @@ Só o `index.ts` é importado por fora. Tire a regra de negócio dos componentes
 
 ## Fase 4 · Shell, erros e PWA
 
-- Shell igual ao do Pastinho: menu lateral recolhível no computador, barra inferior no celular, avatar e sino de avisos no canto superior direito.
+- Shell igual ao do Pastinho: menu lateral recolhível no computador, barra inferior no celular, avatar e sino de avisos no canto superior direito. O CSS dele vem da cópia (`src/idf/css/shell.css`); o componente que o liga ao framework é do projeto.
 - Painel de erro único (mensagem, código, status, requisição, detalhes técnicos, copiar detalhes), também no limite de erro da tela inteira. Sistema **interno** mostra a stack; sistema **público** não mostra e envia ao Sentry.
 - PWA: instalação, "sem conexão" e "nova versão". O service worker não cacheia `/api` com dado pessoal ou financeiro e limpa tudo no logout.
 
@@ -77,6 +77,10 @@ Só o `index.ts` é importado por fora. Tire a regra de negócio dos componentes
 - Teste de arquitetura conferindo as dependências entre camadas (`dependency-cruiser` ou equivalente).
 - `stylelint` contra cor solta, lint contra HTML cru e `eval`, limite de 400 linhas por arquivo de tela.
 - CI com lint, testes, build e `npm audit --omit=dev`.
+
+## Fase 6 · Manter em dia
+
+Quando o design system mudar, **sincronize** em vez de editar a cópia: rode `idf-sync.mjs --destino src/idf --verificar`, mostre o que está desatualizado ou editado à mão e só então sincronize. O passo a passo está na skill `idf-novo-sistema` (Modo 4).
 
 ## Ao terminar cada fase
 
